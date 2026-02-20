@@ -1,33 +1,3172 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的網頁</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 { color: #333; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2d1b69">
+<title>🧠 腦力基地 v7 — 台南二中 118班</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+<!-- Puter.js: 免費AI，無需信用卡 -->
+<script src="https://js.puter.com/v2/"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+:root{
+  --primary:#6c5ce7;--primary-light:#a29bfe;--primary-dark:#2d1b69;
+  --secondary:#00cec9;--accent:#fd79a8;
+  --warn:#e17055;--success:#00b894;--gold:#fdcb6e;
+  --bg:#f0eeff;--card:#ffffff;
+  --text:#1a1a3e;--text2:#636e72;--text3:#b2bec3;
+  --border:rgba(108,92,231,0.15);
+  --shadow:0 4px 24px rgba(108,92,231,0.12);
+  --radius:18px;--nav-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#app{max-width:520px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;}
+.page{display:none;padding:14px 14px 88px;animation:fadeUp .3s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── NAV ── */
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;height:var(--nav-h);z-index:999;box-shadow:0 -4px 30px rgba(0,0,0,.08);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--text3);font-family:inherit;font-size:9px;font-weight:700;transition:all .2s;padding:5px 2px;}
+.nav-btn.active{color:var(--primary);}
+.nav-btn .ni{font-size:20px;transition:transform .2s;}
+.nav-btn.active .ni{transform:scale(1.2);}
+#nav-search{background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:14px;color:#fff;margin:6px 4px;flex:1.3;box-shadow:0 4px 16px rgba(108,92,231,.4);}
+#nav-search.active{color:#fff;}
+
+/* ── CARDS & BUTTONS ── */
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-header{font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.card-sub{font-size:11px;color:var(--text3);font-weight:400;margin-left:auto;}
+.grad-card{border-radius:var(--radius);padding:20px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden;}
+.grad-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,.1);border-radius:50%;}
+.grad-purple{background:linear-gradient(135deg,#6c5ce7,#a29bfe);}
+.grad-teal{background:linear-gradient(135deg,#00cec9,#00b894);}
+.grad-pink{background:linear-gradient(135deg,#fd79a8,#e17055);}
+.grad-dark{background:linear-gradient(135deg,#2d1b69,#6c5ce7);}
+.btn{border:none;border-radius:12px;padding:11px 20px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 4px 14px rgba(108,92,231,.35);}
+.btn-primary:active{transform:scale(.96);}
+.btn-ghost{background:rgba(108,92,231,.08);color:var(--primary);border:1.5px solid var(--border);}
+.btn-danger{background:rgba(225,112,85,.1);color:var(--warn);border:none;}
+.btn-success{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:10px;}
+.btn-full{width:100%;justify-content:center;}
+.input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;font-family:inherit;font-size:14px;outline:none;background:#fafaff;transition:border .2s;}
+.input:focus{border-color:var(--primary);background:#fff;}
+.input-row{display:flex;gap:8px;align-items:center;}
+textarea.input{resize:vertical;min-height:70px;}
+select.input{-webkit-appearance:none;appearance:none;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;background:#f0eeff;color:var(--primary);}
+.chip.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(108,92,231,.3);}
+.form-label{font-size:12px;font-weight:800;color:var(--text2);margin-bottom:5px;margin-top:12px;}
+.page-header{padding:8px 0 14px;display:flex;justify-content:space-between;align-items:center;}
+.section-title{font-size:20px;font-weight:900;color:var(--text);}
+.section-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* ── HOME CLOCK ── */
+.home-header{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0 10px;}
+.home-date{font-size:24px;font-weight:900;color:var(--text);}
+.home-sub{font-size:12px;color:var(--text2);margin-top:2px;font-weight:500;}
+.home-actions{display:flex;gap:8px;align-items:center;}
+.icon-btn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:var(--shadow);flex-shrink:0;}
+.clock-banner{background:linear-gradient(135deg,#2d1b69,#6c5ce7,#a29bfe);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 32px rgba(45,27,105,.4);}
+.clock-time{font-family:'Orbitron',monospace;font-size:38px;font-weight:900;letter-spacing:3px;line-height:1;}
+.clock-ampm{font-size:13px;font-weight:700;opacity:.8;margin-left:6px;}
+.clock-right{text-align:right;}
+.clock-weekday{font-size:13px;font-weight:800;opacity:.9;}
+.clock-lunar{font-size:11px;opacity:.65;margin-top:3px;}
+
+/* ── WEATHER WIDGET ── */
+.weather-card{background:linear-gradient(135deg,#74b9ff,#0984e3);border-radius:var(--radius);padding:16px;margin-bottom:14px;color:#fff;box-shadow:0 4px 20px rgba(9,132,227,.3);}
+.weather-main{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.weather-icon{font-size:40px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));}
+.weather-temp{font-size:36px;font-weight:900;line-height:1;}
+.weather-desc{font-size:13px;opacity:.9;margin-top:2px;}
+.weather-location{font-size:11px;opacity:.7;font-weight:600;}
+.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.weather-cell{background:rgba(255,255,255,.15);border-radius:10px;padding:8px;text-align:center;}
+.weather-cell-val{font-size:15px;font-weight:900;}
+.weather-cell-lbl{font-size:10px;opacity:.8;margin-top:2px;}
+.weather-forecast{display:flex;gap:6px;margin-top:10px;overflow-x:auto;padding-bottom:2px;}
+.wf-item{background:rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;text-align:center;flex-shrink:0;min-width:56px;}
+.wf-day{font-size:10px;opacity:.8;}
+.wf-icon{font-size:18px;margin:3px 0;}
+.wf-temp{font-size:11px;font-weight:700;}
+
+/* ── TIMETABLE ── */
+.class-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#fafaff;border-radius:12px;margin-bottom:6px;border-left:3px solid var(--primary);}
+.class-time{font-size:10px;color:var(--text3);line-height:1.5;width:50px;flex-shrink:0;}
+.class-name{font-size:13px;font-weight:800;color:var(--text);}
+.class-teacher{font-size:11px;color:var(--text2);margin-top:2px;}
+.event-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;}
+.event-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.event-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;}
+
+/* ── RESPONSIVE TIMETABLE ── */
+.tt-wrap{width:100%;overflow:hidden;}
+.tt-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.tt-table th{background:#f0eeff;color:var(--primary);font-size:clamp(10px,2.5vw,13px);font-weight:800;padding:clamp(4px,1vw,8px) 2px;text-align:center;}
+.tt-table th.today-th{background:var(--primary);color:#fff;border-radius:8px;}
+.tt-col-period{width:clamp(36px,9vw,48px);}
+.tt-table td{padding:2px;}
+.tt-cell{background:#fafaff;border-radius:8px;padding:clamp(3px,1vw,6px) clamp(2px,.8vw,4px);min-height:clamp(44px,10vw,56px);border-left:3px solid #ddd;display:flex;flex-direction:column;justify-content:center;}
+.tt-subject{font-size:clamp(9px,2.2vw,12px);font-weight:800;color:var(--text);line-height:1.3;word-break:keep-all;}
+.tt-teacher{font-size:clamp(7px,1.7vw,9px);color:var(--text3);line-height:1.3;margin-top:1px;}
+.tt-period-no{font-size:clamp(10px,2.5vw,13px);font-weight:800;color:var(--primary);}
+.tt-period-time{font-size:clamp(7px,1.6vw,9px);color:var(--text3);line-height:1.4;text-align:center;}
+.cram-cell{border-left-color:#ff7675!important;background:#fff0f0!important;}
+.cram-label{font-size:clamp(8px,2vw,11px);font-weight:800;color:#d63031;}
+
+/* ── CALENDAR ── */
+.cal-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.cal-month-label{font-size:18px;font-weight:900;flex:1;}
+.cal-arrow{background:#fff;border:1.5px solid var(--border);border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:18px;color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.cal-today-btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.view-switcher{display:flex;background:#f0eeff;border-radius:12px;padding:3px;gap:2px;margin-bottom:12px;}
+.view-btn{flex:1;border:none;background:none;border-radius:9px;padding:7px 4px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .2s;}
+.view-btn.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(108,92,231,.15);}
+.cal-grid{background:#fff;border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+.cal-dow span{text-align:center;font-size:11px;font-weight:800;color:var(--text3);padding:4px;}
+.cal-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day{border-radius:8px;padding:3px 2px;text-align:center;cursor:pointer;min-height:40px;display:flex;flex-direction:column;align-items:center;transition:background .15s;}
+.cal-day:hover{background:#f0eeff;}
+.cal-day.today{border:2px solid var(--primary);font-weight:900;color:var(--primary);}
+.cal-day.selected{background:var(--primary);color:#fff!important;}
+.cal-day.selected .dot{background:rgba(255,255,255,.7)!important;}
+.cal-day-num{font-size:13px;font-weight:500;}
+.cal-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;}
+.dot{width:5px;height:5px;border-radius:50%;}
+.cal-day.sun .cal-day-num{color:#e17055;}
+.cal-day.sat .cal-day-num{color:#74b9ff;}
+.agenda-event{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fafaff;border-radius:12px;margin-bottom:6px;border-left:4px solid var(--primary);cursor:pointer;transition:transform .15s;}
+.agenda-event:active{transform:scale(.98);}
+.agenda-time{font-size:11px;color:var(--text3);width:60px;flex-shrink:0;font-weight:600;}
+.agenda-title{font-size:13px;font-weight:700;flex:1;}
+.agenda-loc{font-size:11px;color:var(--text3);margin-top:2px;}
+.color-picker{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.color-dot-pick{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border .2s;}
+.color-dot-pick.selected{border-color:var(--text);}
+.map-nav-btn{background:#74b9ff22;color:#0984e3;border:none;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;}
+
+/* ── SEARCH / AI ── */
+.search-hero{text-align:center;padding:12px 0 8px;}
+.search-brain{font-size:60px;animation:pulse 3s ease-in-out infinite;display:block;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+.big-search-wrap{position:relative;margin-bottom:16px;}
+.big-search{width:100%;border:2px solid var(--border);border-radius:16px;padding:14px 50px 14px 18px;font-family:inherit;font-size:15px;outline:none;background:#fff;box-shadow:var(--shadow);transition:border .2s;}
+.big-search:focus{border-color:var(--primary);}
+.big-search-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,var(--primary),var(--accent));border:none;border-radius:10px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.search-results{margin-bottom:14px;}
+.search-section-title{font-size:12px;font-weight:800;color:var(--text3);padding:8px 0 4px;text-transform:uppercase;letter-spacing:.5px;}
+.search-result-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-radius:12px;margin-bottom:6px;box-shadow:0 2px 8px rgba(108,92,231,.08);cursor:pointer;transition:all .15s;border-left:3px solid var(--primary);}
+.search-result-icon{font-size:20px;flex-shrink:0;}
+.search-result-title{font-size:13px;font-weight:700;color:var(--text);}
+.search-result-sub{font-size:11px;color:var(--text3);}
+.search-result-badge{margin-left:auto;font-size:10px;padding:3px 8px;border-radius:8px;font-weight:700;background:#f0eeff;color:var(--primary);flex-shrink:0;}
+mark{background:#fff176;border-radius:3px;padding:0 2px;}
+.chat-area{background:var(--card);border-radius:var(--radius);padding:14px;min-height:100px;max-height:320px;overflow-y:auto;margin-bottom:12px;box-shadow:var(--shadow);}
+.msg{margin-bottom:10px;}
+.msg-ai{background:linear-gradient(135deg,#f0eeff,#e8e0ff);border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:13px;line-height:1.7;color:var(--text);max-width:92%;}
+.msg-user{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:14px 14px 4px 14px;padding:12px 14px;font-size:13px;color:#fff;max-width:92%;margin-left:auto;}
+.ai-input-row{display:flex;gap:8px;align-items:center;}
+.quick-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.quick-btn{border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--primary);background:#fff;cursor:pointer;font-family:inherit;transition:all .2s;}
+.quick-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.voice-indicator{display:none;text-align:center;padding:10px;color:var(--warn);font-weight:700;}
+.recording{animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+/* ── PORTFOLIO ── */
+.upload-area{border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;}
+.upload-area:hover{border-color:var(--primary);background:#fafaff;}
+.portfolio-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.portfolio-item{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(108,92,231,.1);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.portfolio-item:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,92,231,.18);}
+.portfolio-thumb-icon{height:100px;display:flex;align-items:center;justify-content:center;font-size:42px;}
+.portfolio-thumb-img{width:100%;height:100px;object-fit:cover;}
+.portfolio-info{padding:10px;}
+.portfolio-title{font-size:12px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.portfolio-meta{font-size:10px;color:var(--text3);}
+.portfolio-tag{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:700;background:#f0eeff;color:var(--primary);margin-right:3px;margin-top:4px;display:inline-block;}
+.portfolio-empty{text-align:center;padding:40px 20px;color:var(--text3);}
+
+/* ── STUDY / POMODORO ── */
+.pomo-ring{width:150px;height:150px;margin:0 auto 14px;position:relative;}
+.pomo-svg{transform:rotate(-90deg);}
+.pomo-track{fill:none;stroke:#f0eeff;stroke-width:10;}
+.pomo-prog{fill:none;stroke:url(#pomoGrad);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s linear;}
+.pomo-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.pomo-time{font-size:28px;font-weight:900;color:var(--text);font-family:'Orbitron',monospace;}
+.pomo-label{font-size:11px;color:var(--text2);font-weight:600;}
+.todo-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+.todo-check{width:22px;height:22px;border:2.5px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.todo-check.done{background:var(--success);border-color:var(--success);color:#fff;}
+.todo-text{flex:1;font-size:13px;font-weight:600;}
+.todo-text.done-text{text-decoration:line-through;color:var(--text3);}
+.todo-tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;}
+
+/* ── MUSIC ── */
+.music-page .music-iframe-wrap{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px;background:#000;position:relative;padding-top:56.25%;}
+.music-page .music-iframe-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.music-tip{background:linear-gradient(135deg,#ff6b9d22,#c779d022);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:3px solid var(--accent);}
+.music-tip-title{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:4px;}
+.music-tip-text{font-size:12px;color:var(--text2);line-height:1.6;}
+
+/* ── NOTES (AI筆記) ── */
+.note-card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow);border-left:4px solid var(--primary);cursor:pointer;transition:transform .15s;}
+.note-card:hover{transform:translateY(-2px);}
+.note-title{font-size:14px;font-weight:800;color:var(--text);}
+.note-preview{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.note-meta{font-size:10px;color:var(--text3);margin-top:6px;}
+.note-tag{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:700;background:#f0eeff;color:var(--primary);margin-right:4px;}
+.note-editor{min-height:200px;border:1.5px solid var(--border);border-radius:12px;padding:14px;font-family:'Noto Sans TC',sans-serif;font-size:14px;outline:none;background:#fafaff;line-height:1.8;white-space:pre-wrap;transition:border .2s;}
+.note-editor:focus{border-color:var(--primary);background:#fff;}
+.note-editor[contenteditable="true"]{-webkit-user-modify:read-write-plaintext-only;}
+
+/* ── VOCAB (單字) ── */
+.vocab-card-front{background:linear-gradient(135deg,#2d1b69,#6c5ce7);color:#fff;border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:14px;cursor:pointer;box-shadow:0 8px 32px rgba(108,92,231,.4);transition:transform .3s;}
+.vocab-card-front:hover{transform:scale(1.02);}
+.vocab-word{font-size:28px;font-weight:900;letter-spacing:2px;}
+.vocab-phonetic{font-size:14px;opacity:.7;margin-top:4px;font-style:italic;}
+.vocab-flip-hint{font-size:11px;opacity:.5;margin-top:16px;}
+.vocab-def{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:14px;display:none;}
+.vocab-def.show{display:block;}
+.vocab-def-title{font-size:14px;font-weight:800;color:var(--text2);margin-bottom:8px;}
+.vocab-def-text{font-size:15px;color:var(--text);line-height:1.7;}
+.vocab-example{font-size:13px;color:var(--text2);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid #f0eeff;}
+.vocab-stats{display:flex;gap:8px;margin-bottom:14px;}
+.vocab-stat{flex:1;background:var(--card);border-radius:12px;padding:12px;text-align:center;box-shadow:var(--shadow);}
+.vocab-stat-val{font-size:22px;font-weight:900;color:var(--primary);}
+.vocab-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* ── FOCUS FRAME ── */
+.focus-iframe-wrap{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px;background:#f5f5f5;position:relative;}
+.focus-iframe-wrap iframe{display:block;width:100%;border:none;border-radius:var(--radius);}
+.focus-url-bar{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
+.focus-suggestions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.focus-sug{background:var(--card);border-radius:14px;padding:14px;text-align:center;cursor:pointer;box-shadow:var(--shadow);transition:transform .2s;border:1.5px solid var(--border);}
+.focus-sug:hover{transform:translateY(-2px);border-color:var(--primary);}
+.focus-sug-icon{font-size:28px;margin-bottom:6px;}
+.focus-sug-name{font-size:12px;font-weight:800;color:var(--text);}
+.focus-sug-url{font-size:10px;color:var(--text3);}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:22px 18px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 18px;}
+.modal-title{font-size:17px;font-weight:900;color:var(--text);margin-bottom:14px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+
+/* ── MORE MENU ── */
+.more-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1500;display:none;align-items:flex-end;justify-content:center;}
+.more-overlay.open{display:flex;}
+.more-panel{background:#fff;border-radius:24px 24px 0 0;padding:20px 18px 30px;width:100%;max-width:520px;animation:slideUp .3s ease;}
+.more-panel-title{font-size:14px;font-weight:800;color:var(--text3);text-align:center;margin-bottom:16px;letter-spacing:1px;}
+.more-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.more-item{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:10px 6px;border-radius:14px;transition:background .15s;}
+.more-item:hover{background:#f0eeff;}
+.more-item:active{transform:scale(.94);}
+.more-icon{font-size:28px;background:var(--bg);width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(108,92,231,.1);}
+.more-label{font-size:11px;font-weight:700;color:var(--text2);text-align:center;}
+
+/* ── SYNC STATUS ── */
+.sync-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card);border-radius:12px;margin-bottom:14px;box-shadow:0 2px 8px rgba(108,92,231,.08);}
+.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sync-dot.online{background:var(--success);}
+.sync-dot.offline{background:var(--text3);}
+.sync-dot.syncing{background:var(--warn);animation:blink 1s step-end infinite;}
+.sync-text{font-size:12px;font-weight:700;flex:1;}
+.sync-user{font-size:11px;color:var(--text3);}
+
+/* ── SETTINGS ── */
+.settings-section{margin-bottom:20px;}
+.settings-section-title{font-size:13px;font-weight:800;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.setting-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5;}
+.setting-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+.setting-label{flex:1;}
+.setting-label-title{font-size:14px;font-weight:700;color:var(--text);}
+.setting-label-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.api-key-input{font-family:monospace;font-size:13px;letter-spacing:.5px;}
+.api-key-wrap{position:relative;}
+.api-key-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);}
+
+/* ── WIZARD ── */
+.wizard-overlay{position:fixed;inset:0;background:rgba(26,26,62,.95);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;}
+.wizard-card{background:#fff;border-radius:24px;padding:28px 24px;max-width:460px;width:100%;max-height:85vh;overflow-y:auto;}
+.wizard-step{display:none;}.wizard-step.active{display:block;}
+.wizard-title{font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px;}
+.wizard-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px;}
+.wizard-emoji{font-size:56px;display:block;text-align:center;margin-bottom:16px;}
+.step-indicator{display:flex;gap:6px;justify-content:center;margin-bottom:20px;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:#f0eeff;}
+.step-dot.active{background:var(--primary);}.step-dot.done{background:var(--success);}
+
+/* ── MISC ── */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a3e;color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;display:none;white-space:nowrap;max-width:90%;}
+.progress{background:#f0eeff;border-radius:10px;height:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .5s ease;}
+.type-school{background:#74b9ff;}.type-exam{background:#e17055;}.type-holiday{background:#00cec9;}
+.type-important{background:#a29bfe;}.type-event{background:#6c5ce7;}.type-personal{background:#55efc4;}
+.quote-big{background:var(--card);border-radius:var(--radius);padding:28px 22px;box-shadow:var(--shadow);margin-bottom:14px;position:relative;overflow:hidden;}
+.quote-mark{font-size:80px;color:var(--primary-light);opacity:.3;font-family:Georgia,serif;line-height:.6;position:absolute;top:16px;left:16px;}
+.quote-text{font-size:16px;font-weight:700;color:var(--text);line-height:1.8;font-style:italic;position:relative;z-index:1;margin-top:24px;}
+.quote-author{font-size:13px;color:var(--text2);text-align:right;margin-top:12px;font-weight:600;}
+.add-event-form{background:#fafaff;border-radius:14px;padding:14px;margin-top:10px;display:none;}
+.sel-events{margin-top:14px;}
+.time-row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;}
+.time-sep{font-size:13px;font-weight:700;color:var(--text3);text-align:center;}
+.event-detail-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px;}
+.event-detail-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0;}
+.ai-banner{background:linear-gradient(135deg,#f0eeff,#e8e0ff);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:3px solid var(--primary);}
+.loading-dots::after{content:'';animation:ldots 1.5s step-end infinite;}
+@keyframes ldots{0%{content:'';}33%{content:'.';}66%{content:'..';}100%{content:'...';};}
+
+/* ══════════════════════════════════════
+   FEEL-GOOD v5 DESIGN ENHANCEMENTS
+══════════════════════════════════════ */
+
+/* ── XP & STREAK BAR ── */
+.xp-banner{background:linear-gradient(135deg,#2d1b69,#6c5ce7,#a29bfe);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;color:#fff;box-shadow:0 6px 24px rgba(108,92,231,.35);}
+.xp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.xp-title{font-size:13px;font-weight:800;opacity:.9;}
+.xp-val{font-size:13px;font-weight:900;}
+.xp-bar-bg{background:rgba(255,255,255,.2);border-radius:10px;height:10px;overflow:hidden;}
+.xp-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#fdcb6e,#fd79a8);transition:width .7s cubic-bezier(.34,1.56,.64,1);}
+.streak-row{display:flex;gap:10px;margin-top:10px;}
+.streak-badge{flex:1;background:rgba(255,255,255,.15);border-radius:12px;padding:10px;text-align:center;}
+.streak-num{font-size:22px;font-weight:900;}
+.streak-lbl{font-size:10px;opacity:.8;margin-top:1px;}
+
+/* ── ACHIEVEMENT POPUP ── */
+#achievementPopup{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-120px);background:linear-gradient(135deg,#fdcb6e,#e17055);color:#fff;border-radius:20px;padding:14px 22px;z-index:9998;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center;display:none;pointer-events:none;min-width:200px;}
+#achievementPopup.show{animation:achieveIn .5s cubic-bezier(.34,1.56,.64,1) forwards,achieveOut .5s ease 2.5s forwards;}
+@keyframes achieveIn{from{transform:translateX(-50%) translateY(-120px);opacity:0;}to{transform:translateX(-50%) translateY(0px);opacity:1;}}
+@keyframes achieveOut{from{transform:translateX(-50%) translateY(0px);opacity:1;}to{transform:translateX(-50%) translateY(-120px);opacity:0;}}
+.achieve-icon{font-size:32px;display:block;margin-bottom:4px;}
+.achieve-title{font-size:11px;font-weight:800;opacity:.85;letter-spacing:1px;}
+.achieve-name{font-size:15px;font-weight:900;}
+
+/* ── CONFETTI CANVAS ── */
+#confettiCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9990;display:none;}
+
+/* ── ENHANCED TODO ITEM ── */
+.todo-check{transition:all .25s cubic-bezier(.34,1.56,.64,1);}
+.todo-check.done{animation:checkBounce .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes checkBounce{0%{transform:scale(1);}40%{transform:scale(1.4);}70%{transform:scale(.85);}100%{transform:scale(1);}}
+
+/* ── BREATH WIDGET ── */
+.breath-card{background:linear-gradient(135deg,#00b894,#00cec9);border-radius:var(--radius);padding:20px;text-align:center;color:#fff;margin-bottom:14px;cursor:pointer;box-shadow:0 6px 24px rgba(0,184,148,.3);}
+.breath-circle{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.6);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;transition:transform 4s ease-in-out;}
+.breath-circle.inhale{transform:scale(1.4);}
+.breath-circle.exhale{transform:scale(1);}
+.breath-label{font-size:13px;font-weight:800;opacity:.9;}
+.breath-hint{font-size:11px;opacity:.65;margin-top:4px;}
+
+/* ── CRAM SCHEDULE (per-day, enhanced) ── */
+.cram-day-cell{border-radius:8px;padding:5px 2px;text-align:center;min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.cram-day-cell.has-cram{background:linear-gradient(135deg,#fff5f5,#ffe0e0);border:1.5px solid #ff7675;}
+.cram-day-cell.no-cram{background:#fafafa;border:1.5px solid transparent;}
+.cram-day-emoji{font-size:14px;}
+.cram-day-name{font-size:clamp(7px,1.8vw,10px);font-weight:800;color:#d63031;line-height:1.3;margin-top:2px;}
+
+/* ── QUICK WIN CARD ── */
+.quick-win{background:linear-gradient(135deg,#fdcb6e22,#e1705522);border-radius:14px;padding:12px 14px;margin-bottom:12px;border-left:3px solid var(--gold);display:flex;align-items:center;gap:10px;}
+.quick-win-icon{font-size:24px;}
+.quick-win-text{font-size:12px;font-weight:700;color:var(--text2);flex:1;line-height:1.5;}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>你好！這是我的 Netlify 網頁</h1>
-        <p>如果看到這個畫面，代表部署成功了！</p>
+<div id="app">
+
+<!-- ═══════════ SETUP WIZARD ═══════════ -->
+<div id="setupWizard" class="wizard-overlay" style="display:none;">
+  <div class="wizard-card">
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div>
     </div>
+    <div class="wizard-step active" id="step1">
+      <span class="wizard-emoji">🧠</span>
+      <div class="wizard-title">歡迎使用腦力基地 v7</div>
+      <div class="wizard-sub">花 2 分鐘完成設定，就能使用：AI 助理、天氣、音樂、跨裝置同步。</div>
+      <button class="btn btn-primary btn-full" onclick="nextStep(2)">開始設定 →</button>
+      <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="skipSetup()">先跳過</button>
+    </div>
+    <div class="wizard-step" id="step2">
+      <span class="wizard-emoji">🤖</span>
+      <div class="wizard-title">設定 AI 功能</div>
+      <div class="wizard-sub">前往 <strong>aistudio.google.com</strong> 免費申請 API Key（完全免費，不需信用卡！以 AIza 開頭）</div>
+      <div class="api-key-wrap">
+        <input class="input api-key-input" id="wizApiKey" type="password" placeholder="AIzaSy...">
+        <button class="api-key-toggle" onclick="toggleApiKeyVis('wizApiKey')">👁</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="nextStep(3)" style="flex:1;">跳過</button>
+        <button class="btn btn-primary" onclick="saveApiKeyAndNext()" style="flex:2;">儲存並繼續 →</button>
+      </div>
+    </div>
+    <div class="wizard-step" id="step3">
+      <span class="wizard-emoji">☁️</span>
+      <div class="wizard-title">跨裝置同步（選擇性）</div>
+      <div class="wizard-sub">前往 <strong>console.firebase.google.com</strong> 建立免費專案，貼上 firebaseConfig</div>
+      <textarea class="input" id="wizFirebaseConfig" style="font-family:monospace;font-size:12px;min-height:90px;" placeholder='{"apiKey":"AIza...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="finishSetup()" style="flex:1;">跳過</button>
+        <button class="btn btn-primary" onclick="saveFirebaseAndFinish()" style="flex:2;">完成 ✅</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MORE MENU ═══════════ -->
+<div class="more-overlay" id="moreOverlay" onclick="if(event.target.id==='moreOverlay')closeMore()">
+  <div class="more-panel">
+    <div class="more-panel-title">更多功能</div>
+    <div class="more-grid">
+      <div class="more-item" onclick="goTo('cal');closeMore()">
+        <div class="more-icon">📅</div><div class="more-label">行事曆</div>
+      </div>
+      <div class="more-item" onclick="goTo('portfolio');closeMore()">
+        <div class="more-icon">📁</div><div class="more-label">學習歷程</div>
+      </div>
+      <div class="more-item" onclick="goTo('music');closeMore()">
+        <div class="more-icon">🎵</div><div class="more-label">讀書音樂</div>
+      </div>
+      <div class="more-item" onclick="goTo('notes');closeMore()">
+        <div class="more-icon">📝</div><div class="more-label">AI筆記</div>
+      </div>
+      <div class="more-item" onclick="goTo('weather');closeMore()">
+        <div class="more-icon">🌤</div><div class="more-label">天氣</div>
+      </div>
+      <div class="more-item" onclick="goTo('vocab');closeMore()">
+        <div class="more-icon">🔤</div><div class="more-label">單字練習</div>
+      </div>
+      <div class="more-item" onclick="goTo('focus');closeMore()">
+        <div class="more-icon">🎯</div><div class="more-label">專注框架</div>
+      </div>
+      <div class="more-item" onclick="goTo('settings');closeMore()">
+        <div class="more-icon">⚙️</div><div class="more-label">設定</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HOME ═══════════ -->
+<div class="page active" id="page-home">
+  <div class="home-header">
+    <div>
+      <div class="home-sub">🏫 國立台南二中 · 118雙語實驗班</div>
+      <div class="home-date" id="homeDate">載入中</div>
+      <div class="home-sub">導師：陳怡君</div>
+    </div>
+    <div class="home-actions">
+      <div class="icon-btn" onclick="goTo('weather')" title="天氣">🌤</div>
+      <div id="homeAvatar" class="icon-btn" onclick="handleAvatarClick()" title="帳號">🎓</div>
+    </div>
+  </div>
+
+  <!-- Big Clock -->
+  <div class="clock-banner" id="clockBanner">
+    <div>
+      <div><span class="clock-time" id="clockTime">--:--</span><span class="clock-ampm" id="clockAmpm"></span></div>
+      <div class="clock-weekday" id="clockWeekday"></div>
+      <div class="clock-lunar" id="clockDate2"></div>
+    </div>
+    <div class="clock-right">
+      <div style="font-size:32px;margin-bottom:4px;">🧠</div>
+      <div style="font-size:11px;opacity:.7;">台南市時間</div>
+      <div id="clockCountdown" style="font-size:11px;font-weight:700;opacity:.85;margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- Sync bar -->
+  <div class="sync-bar" id="syncBar">
+    <div class="sync-dot offline" id="syncDot"></div>
+    <div>
+      <div class="sync-text" id="syncText">本地模式（未登入）</div>
+      <div class="sync-user" id="syncUser">設定 Firebase 開啟跨裝置同步</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="syncLoginBtn" onclick="signIn()" style="font-size:11px;padding:5px 10px;">登入</button>
+  </div>
+
+  <!-- Mini weather -->
+  <div id="homeWeatherMini" style="display:none;" class="weather-card" onclick="goTo('weather')" style="cursor:pointer;">
+    <div class="weather-main">
+      <div class="weather-icon" id="homeWeatherIcon">⛅</div>
+      <div>
+        <div class="weather-temp"><span id="homeWeatherTemp">--</span>°C</div>
+        <div class="weather-desc" id="homeWeatherDesc">載入中…</div>
+        <div class="weather-location" id="homeWeatherLoc">台南市</div>
+      </div>
+      <div style="margin-left:auto;font-size:11px;opacity:.7;">點擊查看<br>詳細天氣 →</div>
+    </div>
+  </div>
+
+  <!-- XP & Streak Banner -->
+  <div class="xp-banner">
+    <div class="xp-row">
+      <span class="xp-title">⚡ 今日 XP</span>
+      <span class="xp-val"><span id="xpCurrent">0</span> / <span id="xpMax">100</span></span>
+    </div>
+    <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBar" style="width:0%"></div></div>
+    <div class="streak-row">
+      <div class="streak-badge"><div class="streak-num" id="streakDays">0</div><div class="streak-lbl">🔥 連續天數</div></div>
+      <div class="streak-badge"><div class="streak-num" id="todayDone">0</div><div class="streak-lbl">✅ 今日完成</div></div>
+      <div class="streak-badge"><div class="streak-num" id="totalPomo">0</div><div class="streak-lbl">🍅 番茄鐘</div></div>
+    </div>
+  </div>
+
+  <!-- Quote -->
+  <div class="grad-card grad-purple" id="quoteCard" style="cursor:pointer;" onclick="fetchQuote()">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1px;opacity:.8;margin-bottom:6px;">✨ 今日佳句 — 點我更新</div>
+    <div style="font-size:13px;line-height:1.8;font-weight:600;font-style:italic;" id="homeQuote">載入中…</div>
+  </div>
+
+  <div id="todayAlert" style="display:none;" class="card">
+    <div class="card-header">📢 今日重要事項</div>
+    <div id="todayAlertContent"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">📋 今日課程 <span class="card-sub" id="todayClassSub"></span></div>
+    <div id="todayClasses"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">📅 近期行程 <span class="card-sub" style="cursor:pointer;color:var(--primary);" onclick="goTo('cal')">查看全部 →</span></div>
+    <div id="upcomingEvents"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">📝 今日待辦 <span class="card-sub" id="pendingCount"></span></div>
+    <div id="pendingTodos"></div>
+  </div>
+</div>
+
+<!-- ═══════════ TIMETABLE ═══════════ -->
+<div class="page" id="page-tt">
+  <div class="page-header">
+    <div>
+      <div class="section-title">📋 課程表</div>
+      <div class="section-sub">114學年度第2學期 · 補習班週別顯示</div>
+    </div>
+    <button class="chip active" id="toggleCram" onclick="toggleCramRow()">🏫 補習班</button>
+  </div>
+  <div class="card" style="padding:12px 8px;">
+    <div class="tt-wrap"><table class="tt-table" id="ttTable"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-header">🎨 科目色碼</div>
+    <div id="legend" class="chips"></div>
+  </div>
+</div>
+
+<!-- ═══════════ SEARCH / AI ═══════════ -->
+<div class="page" id="page-search">
+  <div class="search-hero">
+    <span class="search-brain">🔍</span>
+    <div style="font-size:20px;font-weight:900;color:var(--text);margin:6px 0 3px;">智慧搜尋 × AI 助理</div>
+    <div style="font-size:12px;color:var(--text2);">搜尋任何東西，或直接問 AI</div>
+  </div>
+  <div class="big-search-wrap">
+    <input class="big-search" id="bigSearch" placeholder="搜尋行程、待辦、筆記…或問 AI" oninput="onSearchInput(this.value)" onkeydown="if(event.key==='Enter')askFromSearch()">
+    <button class="big-search-btn" onclick="askFromSearch()">🚀</button>
+  </div>
+  <div class="quick-btns">
+    <button class="quick-btn" onclick="quickAsk('下一次考試是什麼時候？')">📝 下次考試</button>
+    <button class="quick-btn" onclick="quickAsk('今天有哪些課？')">📋 今天的課</button>
+    <button class="quick-btn" onclick="quickAsk('幫我排今天讀書計畫')">📚 讀書計畫</button>
+    <button class="quick-btn" onclick="quickAsk('現在台南天氣如何？')">🌤 查天氣</button>
+    <button class="quick-btn" onclick="startVoice()">🎙️ 語音</button>
+    <button class="quick-btn" onclick="quickAsk('幫我分析學習狀況')">📊 學習分析</button>
+  </div>
+  <div id="voiceIndicator" class="voice-indicator">🔴 錄音中<span class="recording">|</span></div>
+  <div id="searchResults" style="display:none;"></div>
+  <div id="aiKeyWarning" style="display:none;" class="card">
+    <div style="font-size:13px;font-weight:700;color:var(--warn);margin-bottom:8px;">⚠️ AI 功能尚未設定</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">請先在設定頁面輸入 Google Gemini API Key（免費申請：aistudio.google.com）。</div>
+    <button class="btn btn-primary btn-sm" onclick="goTo('settings')">⚙️ 前往設定</button>
+  </div>
+  <div class="card">
+    <div class="card-header">🤖 AI 對話 <span class="card-sub" onclick="clearChat()" style="cursor:pointer;color:var(--warn);">清除</span></div>
+    <div class="chat-area" id="chatArea">
+      <div class="msg"><div class="msg-ai">👋 嗨！我是你的 AI 助理。我知道你的課表、行事曆、天氣！<br><br>• 📅 「期中考是哪幾天？」<br>• 📚 「今天該讀哪些科目？」<br>• 🌤 「台南今天天氣？」<br>• 🎙️ 點語音按鈕說話</div></div>
+    </div>
+    <div class="ai-input-row">
+      <input class="input" id="aiTextInput" placeholder="輸入問題…" onkeydown="if(event.key==='Enter')sendTextToAI()" style="font-size:14px;">
+      <button class="btn btn-primary btn-sm" onclick="sendTextToAI()">送出</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CALENDAR ═══════════ -->
+<div class="page" id="page-cal">
+  <div class="page-header">
+    <div>
+      <div class="section-title">📅 行事曆</div>
+      <div class="section-sub">三種檢視 · 完整行程管理</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="requestNotif()">🔔</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">🤖 AI 新增行程</div>
+    <div class="input-row">
+      <input class="input" id="calAiInput" placeholder="例：下週三物理考試" style="font-size:13px;">
+      <button class="btn btn-primary btn-sm" onclick="aiAddEvent()">✨ AI</button>
+    </div>
+  </div>
+
+  <div class="cal-toolbar">
+    <button class="cal-arrow" onclick="changeMonth(-1)">‹</button>
+    <div class="cal-month-label" id="calTitle"></div>
+    <button class="cal-today-btn" onclick="jumpToday()">今天</button>
+    <button class="cal-arrow" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="view-switcher">
+    <button class="view-btn active" id="vbtn-month" onclick="switchView('month')">月</button>
+    <button class="view-btn" id="vbtn-week" onclick="switchView('week')">週</button>
+    <button class="view-btn" id="vbtn-agenda" onclick="switchView('agenda')">議程</button>
+  </div>
+
+  <div id="cal-month-view">
+    <div class="cal-grid">
+      <div class="cal-dow"><span style="color:#e17055;">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span style="color:#74b9ff;">六</span></div>
+      <div class="cal-cells" id="calCells"></div>
+    </div>
+    <div class="sel-events">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:800;" id="selDateLabel">點選日期</div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddEventModal()">＋ 新增</button>
+      </div>
+      <div id="selEvents"></div>
+    </div>
+  </div>
+
+  <div id="cal-week-view" style="display:none;">
+    <div style="background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+      <div style="display:grid;grid-template-columns:44px repeat(7,1fr);border-bottom:1px solid #f0eeff;" id="weekHeader"></div>
+      <div style="overflow-y:auto;max-height:480px;" id="weekBody"></div>
+    </div>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="openAddEventModal()">＋ 新增行程</button>
+    </div>
+  </div>
+
+  <div id="cal-agenda-view" style="display:none;">
+    <div id="agendaList"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+      <button class="btn btn-ghost btn-sm" onclick="openAddEventModal()">＋ 新增行程</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ STUDY ═══════════ -->
+<div class="page" id="page-study">
+  <div class="page-header">
+    <div><div class="section-title">📚 讀書計畫</div></div>
+  </div>
+
+  <!-- Big Clock in study -->
+  <div class="card" style="text-align:center;background:linear-gradient(135deg,#2d1b69,#6c5ce7);color:#fff;border-radius:var(--radius);">
+    <div style="font-family:'Orbitron',monospace;font-size:44px;font-weight:900;letter-spacing:4px;" id="studyClockTime">--:--:--</div>
+    <div style="font-size:13px;opacity:.8;margin-top:4px;" id="studyClockDate"></div>
+    <div style="font-size:11px;opacity:.6;margin-top:2px;" id="studyClockDay"></div>
+  </div>
+
+  <!-- Quick Win Motivator -->
+  <div class="quick-win" id="quickWinCard">
+    <div class="quick-win-icon">💡</div>
+    <div class="quick-win-text" id="quickWinText">先完成一件小事，讓大腦感覺到勝利！</div>
+  </div>
+
+  <!-- Breath Widget -->
+  <div class="breath-card" id="breathCard" onclick="toggleBreath()">
+    <div class="breath-circle" id="breathCircle">🌬️</div>
+    <div class="breath-label" id="breathLabel">點我開始放鬆呼吸</div>
+    <div class="breath-hint">4 秒吸氣 · 4 秒吐氣 · 減壓效果立現</div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div class="card-header" style="justify-content:center;" id="pomoHeader">🍅 番茄鐘 — 專注</div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;">
+      <button class="chip" id="pomoDuration25" onclick="setPomoDuration(25,this)" style="background:var(--primary);color:#fff;">25 分</button>
+      <button class="chip" id="pomoDuration50" onclick="setPomoDuration(50,this)">50 分</button>
+      <button class="chip" id="pomoDuration90" onclick="setPomoDuration(90,this)">90 分</button>
+    </div>
+    <div class="pomo-ring">
+      <svg class="pomo-svg" width="150" height="150" viewBox="0 0 150 150">
+        <defs><linearGradient id="pomoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#6c5ce7"/><stop offset="100%" style="stop-color:#fd79a8"/>
+        </linearGradient></defs>
+        <circle class="pomo-track" cx="75" cy="75" r="65"/>
+        <circle class="pomo-prog" cx="75" cy="75" r="65" id="pomoCircle" stroke-dasharray="408.4" stroke-dashoffset="0"/>
+      </svg>
+      <div class="pomo-center">
+        <div class="pomo-time" id="pomoTime">25:00</div>
+        <div class="pomo-label" id="pomoLabel">尚未開始</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;">
+      <button class="btn btn-primary btn-sm" id="pomoBtn" onclick="pomodoroToggle()">▶ 開始</button>
+      <button class="btn btn-ghost btn-sm" onclick="pomodoroReset()">↺ 重置</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2);">完成 <strong id="pomCount">0</strong> 個番茄 🍅</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">🤖 AI 讀書計畫</div>
+    <div class="chips" style="margin-bottom:10px;" id="studySubjectChips">
+      <button class="chip active" onclick="toggleStudySubject(this,'數學')">數學</button>
+      <button class="chip active" onclick="toggleStudySubject(this,'物理')">物理</button>
+      <button class="chip active" onclick="toggleStudySubject(this,'化學')">化學</button>
+      <button class="chip" onclick="toggleStudySubject(this,'國語文')">國語文</button>
+      <button class="chip" onclick="toggleStudySubject(this,'英語文')">英語文</button>
+      <button class="chip" onclick="toggleStudySubject(this,'歷史')">歷史</button>
+      <button class="chip" onclick="toggleStudySubject(this,'地理')">地理</button>
+      <button class="chip" onclick="toggleStudySubject(this,'地球科學')">地科</button>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="generateStudyPlan()">✨ 生成今日讀書計畫</button>
+    <div id="aiStudyPlan" style="margin-top:12px;display:none;background:#fafaff;border-radius:12px;padding:14px;font-size:13px;line-height:1.8;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">➕ 新增待辦</div>
+    <div class="input-row" style="margin-bottom:8px;">
+      <input class="input" id="todoInput" placeholder="作業或任務…" onkeydown="if(event.key==='Enter')addTodoItem()">
+      <button class="btn btn-primary btn-sm" onclick="addTodoItem()">新增</button>
+    </div>
+    <div class="chips" id="todoSubjectChips" style="margin-bottom:8px;">
+      <button class="chip active" data-subj="數學" onclick="selectTodoSubject(this)">數學</button>
+      <button class="chip" data-subj="物理" onclick="selectTodoSubject(this)">物理</button>
+      <button class="chip" data-subj="化學" onclick="selectTodoSubject(this)">化學</button>
+      <button class="chip" data-subj="英語文" onclick="selectTodoSubject(this)">英語</button>
+      <button class="chip" data-subj="其他" onclick="selectTodoSubject(this)">其他</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <button class="chip" id="pri-high" onclick="selectPriority('high',this)">🔴 高</button>
+      <button class="chip active" id="pri-normal" onclick="selectPriority('normal',this)">🟡 普通</button>
+      <button class="chip" id="pri-low" onclick="selectPriority('low',this)">🟢 低</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:10px;">
+    <button class="chip active" id="filter-all" onclick="filterTodos('all',this)">全部</button>
+    <button class="chip" id="filter-pending" onclick="filterTodos('pending',this)">待完成</button>
+    <button class="chip" id="filter-done" onclick="filterTodos('done',this)">已完成</button>
+  </div>
+  <div class="card"><div id="todoList"></div></div>
+</div>
+
+<!-- ═══════════ PORTFOLIO ═══════════ -->
+<div class="page" id="page-portfolio">
+  <div class="page-header">
+    <div>
+      <div class="section-title">📁 學習歷程</div>
+      <div class="section-sub">上傳圖片・影片・PDF</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('portfolioFileInput').click()">＋ 上傳</button>
+  </div>
+  <!-- Photo upload only (no camera capture) -->
+  <input type="file" id="portfolioFileInput" accept="image/*,video/*,application/pdf" multiple style="display:none;" onchange="handlePortfolioUpload(this)">
+
+  <div class="upload-area" onclick="document.getElementById('portfolioFileInput').click()">
+    <div style="font-size:36px;margin-bottom:8px;">📤</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text2);">點擊上傳圖片・影片・PDF</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px;">JPG · PNG · PDF · MP4</div>
+  </div>
+
+  <div class="card" style="padding:12px 16px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-around;text-align:center;">
+      <div><div style="font-size:22px;font-weight:900;color:var(--primary);" id="portStatTotal">0</div><div style="font-size:11px;color:var(--text3);">全部</div></div>
+      <div><div style="font-size:22px;font-weight:900;color:#74b9ff;" id="portStatImg">0</div><div style="font-size:11px;color:var(--text3);">圖片</div></div>
+      <div><div style="font-size:22px;font-weight:900;color:var(--warn);" id="portStatPdf">0</div><div style="font-size:11px;color:var(--text3);">PDF</div></div>
+      <div><div style="font-size:22px;font-weight:900;color:var(--success);" id="portStatVid">0</div><div style="font-size:11px;color:var(--text3);">影片</div></div>
+    </div>
+  </div>
+
+  <div class="input-row" style="margin-bottom:10px;">
+    <input type="search" class="input" id="portSearch" placeholder="🔍 搜尋素材…" oninput="renderPortfolio()" style="font-size:13px;">
+  </div>
+  <div class="chips" style="margin-bottom:12px;" id="portSubjectFilter">
+    <button class="chip active" data-filter="all" onclick="setPortFilter(this,'all')">全部</button>
+    <button class="chip" data-filter="數學" onclick="setPortFilter(this,'數學')">數學</button>
+    <button class="chip" data-filter="物理" onclick="setPortFilter(this,'物理')">物理</button>
+    <button class="chip" data-filter="化學" onclick="setPortFilter(this,'化學')">化學</button>
+    <button class="chip" data-filter="英語文" onclick="setPortFilter(this,'英語文')">英語</button>
+    <button class="chip" data-filter="其他" onclick="setPortFilter(this,'其他')">其他</button>
+  </div>
+  <div class="portfolio-grid" id="portfolioGrid"></div>
+  <div id="portfolioEmpty" class="portfolio-empty" style="display:none;">
+    <div style="font-size:48px;margin-bottom:12px;">📭</div>
+    <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px;">還沒有素材</div>
+    <div style="font-size:13px;color:var(--text3);">點擊上方按鈕上傳</div>
+  </div>
+</div>
+
+<!-- ═══════════ MUSIC ═══════════ -->
+<div class="page music-page" id="page-music">
+  <div class="page-header">
+    <div>
+      <div class="section-title">🎵 讀書音樂</div>
+      <div class="section-sub">LoFi · 專注 · 無廣告體驗</div>
+    </div>
+  </div>
+
+  <div class="music-tip">
+    <div class="music-tip-title">💡 無廣告小技巧</div>
+    <div class="music-tip-text">使用 YouTube 隱私加強模式播放，減少追蹤與廣告干擾。也可用 <strong>Bubble Player</strong> 或 YouTube Premium 獲得完全無廣告體驗。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">▶ 讀書音樂播放清單</div>
+    <div class="music-iframe-wrap">
+      <iframe 
+        src="https://www.youtube-nocookie.com/embed/videoseries?list=PLqbyrhBs9RDM2nF3sQEAeWSSs1kA5XEij&autoplay=0&modestbranding=1&rel=0&iv_load_policy=3&cc_load_policy=0"
+        allowfullscreen
+        allow="autoplay; encrypted-media">
+      </iframe>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">🎧 其他頻道</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-ghost btn-full" onclick="openMusicUrl('https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=0&modestbranding=1&rel=0')">☕ lofi hip hop radio – beats to relax/study</button>
+      <button class="btn btn-ghost btn-full" onclick="openMusicUrl('https://www.youtube-nocookie.com/embed/videoseries?list=PLqbyrhBs9RDM2nF3sQEAeWSSs1kA5XEij&autoplay=0&modestbranding=1&rel=0')">🎵 我的讀書音樂清單</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">🔗 在 Bubble Player 開啟</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.6;">用 Bubble Player 播放可完全無廣告，背景播放。</div>
+    <a href="https://bubbleplayer.app" target="_blank" class="btn btn-primary btn-full">🫧 開啟 Bubble Player</a>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center;">清單 ID：PLqbyrhBs9RDM2nF3sQEAeWSSs1kA5XEij</div>
+  </div>
+</div>
+
+<!-- ═══════════ NOTES (AI筆記) ═══════════ -->
+<div class="page" id="page-notes">
+  <div class="page-header">
+    <div>
+      <div class="section-title">📝 AI 筆記</div>
+      <div class="section-sub">AI 自動整理 · 永久儲存</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openNoteEditor()">＋ 新增</button>
+  </div>
+
+  <div class="ai-banner">
+    <div style="font-size:12px;font-weight:800;color:var(--primary);margin-bottom:4px;">🤖 AI 筆記整理</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;">輸入筆記後，AI 可以幫你：整理重點、生成摘要、建議補充內容、自動分類標籤。</div>
+  </div>
+
+  <div class="input-row" style="margin-bottom:12px;">
+    <input class="input" id="noteSearch" placeholder="🔍 搜尋筆記…" oninput="renderNotes()" style="font-size:13px;">
+  </div>
+  <div class="chips" style="margin-bottom:14px;" id="noteSubjectFilter">
+    <button class="chip active" data-nf="all" onclick="setNoteFilter(this,'all')">全部</button>
+    <button class="chip" data-nf="數學" onclick="setNoteFilter(this,'數學')">數學</button>
+    <button class="chip" data-nf="物理" onclick="setNoteFilter(this,'物理')">物理</button>
+    <button class="chip" data-nf="化學" onclick="setNoteFilter(this,'化學')">化學</button>
+    <button class="chip" data-nf="英語文" onclick="setNoteFilter(this,'英語文')">英語</button>
+    <button class="chip" data-nf="其他" onclick="setNoteFilter(this,'其他')">其他</button>
+  </div>
+  <div id="notesList"></div>
+  <div id="notesEmpty" style="text-align:center;padding:40px 20px;color:var(--text3);display:none;">
+    <div style="font-size:48px;margin-bottom:12px;">📓</div>
+    <div style="font-size:15px;font-weight:800;margin-bottom:6px;">還沒有筆記</div>
+    <div style="font-size:13px;">點擊右上角「＋ 新增」開始</div>
+  </div>
+</div>
+
+<!-- ═══════════ WEATHER ═══════════ -->
+<div class="page" id="page-weather">
+
+  <!-- Alert Banner -->
+  <div id="alertBanner" style="display:none;background:linear-gradient(135deg,#e17055,#d63031);color:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+    <div style="font-size:12px;font-weight:800;letter-spacing:1px;opacity:.8;margin-bottom:4px;" id="alertType">⚠️ 警報</div>
+    <div style="font-size:14px;font-weight:700;line-height:1.6;" id="alertContent"></div>
+    <div style="font-size:10px;opacity:.7;margin-top:6px;" id="alertTime"></div>
+  </div>
+
+  <!-- Samsung-style main weather card -->
+  <div style="background:linear-gradient(160deg,#0f2b6b 0%,#1a4a9e 40%,#2d7cd6 80%,#4db8ff 100%);border-radius:24px;padding:28px 22px 20px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(45,124,214,0.4);">
+    <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,0.06);border-radius:50%;"></div>
+    <div style="position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;background:rgba(255,255,255,0.04);border-radius:50%;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div style="position:relative;z-index:1;">
+        <div style="font-size:12px;font-weight:700;opacity:.8;letter-spacing:1px;" id="wLocNew">📍 定位中…</div>
+        <div style="font-size:58px;font-weight:900;line-height:1;margin:8px 0;" id="wTempNew">--°</div>
+        <div style="font-size:16px;font-weight:700;opacity:.9;" id="wDescNew">天氣資訊載入中</div>
+        <div style="font-size:12px;opacity:.7;margin-top:4px;" id="wFeelsLike"></div>
+      </div>
+      <div style="text-align:center;position:relative;z-index:1;">
+        <div style="font-size:68px;line-height:1;" id="wIconNew">⏳</div>
+        <div style="font-size:10px;opacity:.6;margin-top:4px;" id="wUpdatedNew">更新中</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:0;background:rgba(255,255,255,0.12);border-radius:14px;padding:10px 0;margin-top:12px;position:relative;z-index:1;">
+      <div style="flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.2);">
+        <div style="font-size:17px;font-weight:800;" id="wHumNew">--%</div>
+        <div style="font-size:10px;opacity:.7;margin-top:2px;">💧 濕度</div>
+      </div>
+      <div style="flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.2);">
+        <div style="font-size:17px;font-weight:800;" id="wRainNew">--%</div>
+        <div style="font-size:10px;opacity:.7;margin-top:2px;">☔ 降雨</div>
+      </div>
+      <div style="flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.2);">
+        <div style="font-size:17px;font-weight:800;" id="wWindNew">--</div>
+        <div style="font-size:10px;opacity:.7;margin-top:2px;">💨 m/s</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:17px;font-weight:800;" id="wUVNew">--</div>
+        <div style="font-size:10px;opacity:.7;margin-top:2px;">☀️ UV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hourly -->
+  <div class="card" style="padding:16px;">
+    <div class="card-header">🕐 今日逐時預報</div>
+    <div id="wHourlyForecast" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;"></div>
+  </div>
+
+  <!-- 7-day Forecast -->
+  <div class="card">
+    <div class="card-header">📅 七天預報 <span class="card-sub" style="color:var(--success);">Open-Meteo 免費</span></div>
+    <div id="wForecastFull"></div>
+  </div>
+
+  <!-- Earthquake -->
+  <div class="card">
+    <div class="card-header">🌍 近期地震（台灣 M≥3）<span class="card-sub" onclick="fetchEarthquakes()" style="cursor:pointer;color:var(--primary);">🔄</span></div>
+    <div id="earthquakeList" style="font-size:13px;color:var(--text2);">載入中…</div>
+  </div>
+
+  <!-- Typhoon -->
+  <div class="card">
+    <div class="card-header">🌀 颱風動態 <span class="card-sub" onclick="fetchTyphoon()" style="cursor:pointer;color:var(--primary);">🔄</span></div>
+    <div id="typhoonStatus" style="font-size:13px;color:var(--text2);padding:4px 0;">檢查中…</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="card">
+    <div class="card-header">📍 定位與設定</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-primary btn-sm" style="flex:1;" onclick="fetchWeatherAuto()">📍 GPS 定位更新</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="fetchWeather(true)">🔄 手動更新</button>
+    </div>
+    <select class="input" id="weatherCity" onchange="fetchWeather(true)" style="margin-bottom:8px;">
+      <option value="臺南市">臺南市</option><option value="臺北市">臺北市</option>
+      <option value="新北市">新北市</option><option value="桃園市">桃園市</option>
+      <option value="臺中市">臺中市</option><option value="高雄市">高雄市</option>
+      <option value="嘉義市">嘉義市</option>
+    </select>
+    <div style="font-size:11px;color:var(--text3);">✅ Open-Meteo 免費天氣（無需 API Key）· USGS 地震資料</div>
+    <div id="cwaStatus" style="font-size:11px;margin-top:4px;color:var(--text2);"></div>
+  </div>
+
+  <!-- legacy hidden elements for compat -->
+  <div style="display:none;">
+    <span id="wIcon"></span><span id="wTemp"></span><span id="wDesc"></span>
+    <span id="wLoc"></span><span id="wHumidity"></span><span id="wRain"></span>
+    <span id="wWind"></span><span id="wUpdated"></span><span id="wTime"></span>
+    <div id="wForecast"></div><input id="cwaKeyInput">
+  </div>
+</div>
+
+<!-- ═══════════ VOCAB (單字) ═══════════ -->
+<div class="page" id="page-vocab">
+  <div class="page-header">
+    <div>
+      <div class="section-title">🔤 單字練習</div>
+      <div class="section-sub">AI 單字卡 · Word Up 連結</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="shuffleVocab()">🔀 隨機</button>
+  </div>
+
+  <div class="vocab-stats">
+    <div class="vocab-stat"><div class="vocab-stat-val" id="vocabTotal">0</div><div class="vocab-stat-lbl">總單字</div></div>
+    <div class="vocab-stat"><div class="vocab-stat-val" id="vocabMastered">0</div><div class="vocab-stat-lbl">已熟</div></div>
+    <div class="vocab-stat"><div class="vocab-stat-val" id="vocabToReview">0</div><div class="vocab-stat-lbl">待複習</div></div>
+  </div>
+
+  <div class="vocab-card-front" id="vocabCardFront" onclick="flipVocabCard()">
+    <div class="vocab-word" id="vocabWord">ENDEAVOR</div>
+    <div class="vocab-phonetic" id="vocabPhonetic">/ɪnˈdevər/</div>
+    <div style="font-size:12px;opacity:.5;margin-top:6px;" id="vocabSubject">英語文</div>
+    <div class="vocab-flip-hint">點擊翻轉看答案 👆</div>
+  </div>
+
+  <div class="vocab-def" id="vocabDef">
+    <div class="vocab-def-title">📖 定義</div>
+    <div class="vocab-def-text" id="vocabDefText"></div>
+    <div class="vocab-example" id="vocabExample"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn btn-danger btn-sm" style="flex:1;" onclick="markVocab('hard')">😅 還不熟</button>
+      <button class="btn btn-success btn-sm" style="flex:1;" onclick="markVocab('easy')">✅ 已熟悉</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">➕ 新增單字</div>
+    <div class="input-row" style="margin-bottom:8px;">
+      <input class="input" id="vocabInput" placeholder="輸入英文單字…" style="flex:2;">
+      <select class="input" id="vocabSubjectSelect" style="flex:1;font-size:12px;">
+        <option>英語文</option><option>其他</option>
+      </select>
+    </div>
+    <div class="input-row">
+      <input class="input" id="vocabMeaningInput" placeholder="中文意思（選填，AI 可自動填入）">
+      <button class="btn btn-primary btn-sm" onclick="addVocabWord()">新增</button>
+    </div>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="aiGenerateVocabMeaning()">🤖 AI 自動填入意思</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">🔗 Word Up 連結</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Word Up 有完整的學術單字庫、AI 例句、情境記憶功能，超適合備考！</div>
+    <a href="https://wordupapp.co" target="_blank" class="btn btn-primary btn-full">📱 開啟 Word Up</a>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="loadFocusUrl('https://wordupapp.co');goTo('focus')">🎯 在專注框中開啟</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">📚 我的單字庫 <span class="card-sub" onclick="clearVocabList()" style="cursor:pointer;color:var(--warn);">清除</span></div>
+    <div id="vocabList"></div>
+  </div>
+</div>
+
+<!-- ═══════════ FOCUS FRAME ═══════════ -->
+<div class="page" id="page-focus">
+  <div class="page-header">
+    <div>
+      <div class="section-title">🎯 專注框架</div>
+      <div class="section-sub">把任何網站嵌入這裡</div>
+    </div>
+  </div>
+
+  <div class="focus-url-bar">
+    <input class="input" id="focusUrlInput" placeholder="輸入網址 https://..." style="font-size:13px;flex:1;">
+    <button class="btn btn-primary btn-sm" onclick="loadFocusFrame()">前往</button>
+  </div>
+
+  <div class="focus-suggestions">
+    <div class="focus-sug" onclick="loadFocusUrl('https://wordupapp.co')">
+      <div class="focus-sug-icon">🔤</div>
+      <div class="focus-sug-name">Word Up</div>
+      <div class="focus-sug-url">wordupapp.co</div>
+    </div>
+    <div class="focus-sug" onclick="loadFocusUrl('https://www.notion.so')">
+      <div class="focus-sug-icon">📝</div>
+      <div class="focus-sug-name">Notion</div>
+      <div class="focus-sug-url">notion.so</div>
+    </div>
+    <div class="focus-sug" onclick="loadFocusUrl('https://quizlet.com')">
+      <div class="focus-sug-icon">🃏</div>
+      <div class="focus-sug-name">Quizlet</div>
+      <div class="focus-sug-url">quizlet.com</div>
+    </div>
+    <div class="focus-sug" onclick="loadFocusUrl('https://www.desmos.com/calculator')">
+      <div class="focus-sug-icon">📐</div>
+      <div class="focus-sug-name">Desmos</div>
+      <div class="focus-sug-url">計算機</div>
+    </div>
+    <div class="focus-sug" onclick="loadFocusUrl('https://www.khan academy.org')">
+      <div class="focus-sug-icon">🎓</div>
+      <div class="focus-sug-name">Khan Academy</div>
+      <div class="focus-sug-url">khanacademy.org</div>
+    </div>
+    <div class="focus-sug" onclick="loadFocusUrl('https://www.wolfram alpha.com')">
+      <div class="focus-sug-icon">🧮</div>
+      <div class="focus-sug-name">WolframAlpha</div>
+      <div class="focus-sug-url">計算工具</div>
+    </div>
+  </div>
+
+  <div class="focus-iframe-wrap" id="focusFrameWrap" style="display:none;">
+    <div style="background:var(--primary);padding:8px 12px;display:flex;align-items:center;gap:8px;">
+      <div style="font-size:12px;color:#fff;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="focusFrameTitle">載入中…</div>
+      <button onclick="closeFocusFrame()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:700;">✕ 關閉</button>
+    </div>
+    <iframe id="focusIframe" style="height:70vh;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" referrerpolicy="no-referrer"></iframe>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div style="font-size:12px;color:var(--text3);line-height:1.7;">
+      ℹ️ 部分網站（如 Google）因安全設定無法嵌入，可在新分頁開啟。<br>
+      推薦使用：Word Up、Desmos、Quizlet 等學習工具。
+    </div>
+    <button class="btn btn-ghost btn-full" style="margin-top:10px;" id="focusOpenNewTab" onclick="openFocusInNewTab()" style="display:none;">🔗 在新分頁開啟</button>
+  </div>
+</div>
+
+<!-- ═══════════ SETTINGS ═══════════ -->
+<div class="page" id="page-settings">
+  <div class="page-header">
+    <div><div class="section-title">⚙️ 設定</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="goTo('home')">← 返回</button>
+  </div>
+
+  <div class="card settings-section">
+    <div class="settings-section-title">👤 帳號與同步</div>
+    <div id="settingsAccountSection">
+      <div style="text-align:center;padding:16px 0;">
+        <div id="settingsUserAvatar" style="font-size:48px;margin-bottom:8px;">🎓</div>
+        <div id="settingsUserName" style="font-size:16px;font-weight:800;">未登入</div>
+        <div id="settingsUserEmail" style="font-size:12px;color:var(--text3);margin-top:4px;"></div>
+      </div>
+      <button id="settingsLoginBtn" class="btn btn-primary btn-full" onclick="signIn()">🔑 Google 帳號登入</button>
+      <button id="settingsLogoutBtn" class="btn btn-danger btn-full" style="display:none;margin-top:8px;" onclick="signOut()">登出</button>
+    </div>
+  </div>
+
+  <div class="card settings-section">
+    <div class="settings-section-title">☁️ Firebase 同步設定</div>
+    <div class="form-label">Firebase Config（JSON 格式）</div>
+    <textarea class="input" id="settingsFirebaseConfig" style="font-family:monospace;font-size:12px;min-height:80px;" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-primary btn-sm" onclick="saveFirebaseConfig()">💾 儲存並連線</button>
+      <button class="btn btn-danger btn-sm" onclick="clearFirebaseConfig()">清除</button>
+    </div>
+    <div id="firebaseStatus" style="font-size:12px;margin-top:8px;color:var(--text3);"></div>
+  </div>
+
+  <div class="card settings-section">
+    <div class="settings-section-title">🤖 Google Gemini API Key（免費）</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6;">前往 <strong>aistudio.google.com</strong> 免費申請，不需信用卡。Key 只存在你的裝置上。App 會自動使用最新最強的模型。</div>
+    <div class="api-key-wrap">
+      <input class="input api-key-input" id="settingsApiKey" type="password" placeholder="AIzaSy...">
+      <button class="api-key-toggle" onclick="toggleApiKeyVis('settingsApiKey')">👁</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-primary btn-sm" onclick="saveApiKey()">💾 儲存</button>
+      <button class="btn btn-danger btn-sm" onclick="clearApiKey()">清除</button>
+    </div>
+    <div id="apiKeyStatus" style="font-size:12px;margin-top:8px;color:var(--text3);"></div>
+    <div id="geminiModelStatus" style="font-size:11px;margin-top:4px;color:var(--primary);font-weight:600;"></div>
+  </div>
+
+  <div class="card settings-section">
+    <div class="settings-section-title">🌤 天氣設定（中央氣象署）</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6;">前往 <strong>opendata.cwa.gov.tw</strong> 申請免費授權碼。</div>
+    <div class="api-key-wrap">
+      <input class="input api-key-input" id="settingsCwaKey" type="password" placeholder="CWA-XXXXXXXX-...">
+      <button class="api-key-toggle" onclick="toggleApiKeyVis('settingsCwaKey')">👁</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-primary btn-sm" onclick="saveCwaKeyFromSettings()">💾 儲存</button>
+      <button class="btn btn-danger btn-sm" onclick="clearCwaKey()">清除</button>
+    </div>
+  </div>
+
+  <div class="card settings-section">
+    <div class="settings-section-title">💾 資料管理</div>
+    <button class="btn btn-ghost btn-full" style="margin-bottom:8px;" onclick="exportData()">⬇️ 匯出所有資料（JSON）</button>
+    <button class="btn btn-ghost btn-full" style="margin-bottom:8px;" onclick="document.getElementById('importFileInput').click()">⬆️ 匯入資料</button>
+    <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importData(this)">
+    <button class="btn btn-ghost btn-full" style="margin-bottom:8px;" onclick="syncNow()">🔄 立即同步</button>
+    <button class="btn btn-danger btn-full" onclick="clearAllData()">🗑 清除所有本地資料</button>
+  </div>
+
+  <div class="card settings-section">
+    <div class="settings-section-title">ℹ️ 關於</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+      腦力基地 v7<br>
+      國立台南二中 118雙語實驗班<br>
+      114學年度第2學期<br><br>
+      <span style="color:var(--text3);font-size:11px;">功能：響應式課表 · AI 助理 · 智慧搜尋 · 天氣 · 音樂 · 筆記 · 單字 · 專注框架 · 跨裝置同步 · 學習歷程</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BOTTOM NAV ═══════════ -->
+<nav id="nav">
+  <button class="nav-btn active" id="nav-home" onclick="goTo('home')">
+    <span class="ni">🏠</span><span>首頁</span>
+  </button>
+  <button class="nav-btn" id="nav-tt" onclick="goTo('tt')">
+    <span class="ni">📋</span><span>課表</span>
+  </button>
+  <button class="nav-btn" id="nav-search" onclick="goTo('search')">
+    <span class="ni">🔍</span><span>搜尋AI</span>
+  </button>
+  <button class="nav-btn" id="nav-study" onclick="goTo('study')">
+    <span class="ni">📚</span><span>讀書</span>
+  </button>
+  <button class="nav-btn" id="nav-more" onclick="openMore()">
+    <span class="ni">☰</span><span>更多</span>
+  </button>
+</nav>
+
+<!-- ═══════════ MODALS ═══════════ -->
+
+<!-- Add/Edit Event Modal -->
+<div class="modal-overlay" id="addEventModal" onclick="if(event.target.id==='addEventModal')closeModal('addEventModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="addEventModalTitle">📅 新增行程</div>
+    <div class="form-label">行程名稱</div>
+    <input class="input" id="evTitle" placeholder="例：物理期中考">
+    <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;">
+        <input type="checkbox" id="evAllDay" onchange="toggleAllDay()" checked style="width:16px;height:16px;accent-color:var(--primary);"> 整天
+      </label>
+    </div>
+    <div class="form-label">日期</div>
+    <input class="input" id="evDate" type="date">
+    <div id="evTimeRow" style="display:none;">
+      <div class="form-label">時間</div>
+      <div class="time-row">
+        <input class="input" id="evStartTime" type="time" value="08:00">
+        <div class="time-sep">→</div>
+        <input class="input" id="evEndTime" type="time" value="09:00">
+      </div>
+    </div>
+    <div class="form-label">類型</div>
+    <div class="chips" id="evTypeChips">
+      <button class="chip active" data-type="personal" onclick="selectEventType(this)">個人</button>
+      <button class="chip" data-type="exam" onclick="selectEventType(this)">考試</button>
+      <button class="chip" data-type="school" onclick="selectEventType(this)">學校</button>
+      <button class="chip" data-type="important" onclick="selectEventType(this)">重要</button>
+      <button class="chip" data-type="holiday" onclick="selectEventType(this)">假日</button>
+    </div>
+    <div class="form-label">顏色</div>
+    <div class="color-picker" id="evColorPicker">
+      <div class="color-dot-pick selected" data-color="" style="background:#6c5ce7;" onclick="selectEvColor(this,'')"></div>
+      <div class="color-dot-pick" data-color="#e17055" style="background:#e17055;" onclick="selectEvColor(this,'#e17055')"></div>
+      <div class="color-dot-pick" data-color="#00cec9" style="background:#00cec9;" onclick="selectEvColor(this,'#00cec9')"></div>
+      <div class="color-dot-pick" data-color="#fd79a8" style="background:#fd79a8;" onclick="selectEvColor(this,'#fd79a8')"></div>
+      <div class="color-dot-pick" data-color="#fdcb6e" style="background:#fdcb6e;" onclick="selectEvColor(this,'#fdcb6e')"></div>
+      <div class="color-dot-pick" data-color="#00b894" style="background:#00b894;" onclick="selectEvColor(this,'#00b894')"></div>
+    </div>
+    <div class="form-label">地點</div>
+    <div class="input-row">
+      <input class="input" id="evLocation" placeholder="選填地點名稱">
+      <button class="map-nav-btn" onclick="openMapSearch()" title="地圖導航">🗺 導航</button>
+    </div>
+    <div class="form-label">說明</div>
+    <textarea class="input" id="evDesc" style="min-height:60px;" placeholder="考試範圍、注意事項…"></textarea>
+    <div class="form-label">重複</div>
+    <select class="input" id="evRecurrence">
+      <option value="none">不重複</option><option value="daily">每天</option>
+      <option value="weekly">每週</option><option value="monthly">每月</option>
+    </select>
+    <div class="form-label">提醒</div>
+    <select class="input" id="evReminder">
+      <option value="0">不提醒</option><option value="5">5 分鐘前</option>
+      <option value="15" selected>15 分鐘前</option><option value="60">1 小時前</option>
+      <option value="1440">1 天前</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+      <input type="checkbox" id="evImportant" style="width:16px;height:16px;accent-color:var(--primary);">
+      <label for="evImportant" style="font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;">🔴 標記為重要</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="evDeleteBtn" onclick="deleteEditingEvent()" style="display:none;">🗑</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="closeModal('addEventModal')">取消</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="confirmSaveEvent()">✅ 儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Detail Modal -->
+<div class="modal-overlay" id="eventDetailModal" onclick="if(event.target.id==='eventDetailModal')closeModal('eventDetailModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="eventDetailContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('eventDetailModal')">關閉</button>
+      <button class="btn btn-primary btn-sm" id="editEventBtn" onclick="editEventFromDetail()">✏️ 編輯</button>
+    </div>
+  </div>
+</div>
+
+<!-- Portfolio Upload Modal -->
+<div class="modal-overlay" id="portUploadModal" onclick="if(event.target.id==='portUploadModal')closeModal('portUploadModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📤 設定素材資訊</div>
+    <div id="portUploadPreview" style="margin-bottom:10px;"></div>
+    <div class="form-label">標題</div>
+    <input class="input" id="portTitle" placeholder="素材名稱">
+    <div class="form-label">科目</div>
+    <select class="input" id="portSubject">
+      <option value="數學">數學</option><option value="物理">物理</option>
+      <option value="化學">化學</option><option value="國語文">國語文</option>
+      <option value="英語文">英語文</option><option value="歷史">歷史</option>
+      <option value="地理">地理</option><option value="地球科學">地球科學</option>
+      <option value="其他">其他</option>
+    </select>
+    <div class="form-label">說明</div>
+    <textarea class="input" id="portDesc" placeholder="這份素材的重點…" style="min-height:60px;"></textarea>
+    <div class="form-label">標籤（逗號分隔）</div>
+    <input class="input" id="portTags" placeholder="期中考,筆記,重點">
+    <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+      <input type="checkbox" id="portAiAnalyze" style="width:16px;height:16px;accent-color:var(--primary);" checked>
+      <label for="portAiAnalyze" style="font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;">🤖 AI 自動分析內容並建議標籤</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('portUploadModal')">取消</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmPortfolioUpload()">💾 儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Portfolio Detail Modal -->
+<div class="modal-overlay" id="portDetailModal" onclick="if(event.target.id==='portDetailModal')closeModal('portDetailModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="portDetailContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="portDeleteBtn">🗑 刪除</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('portDetailModal')">關閉</button>
+      <button class="btn btn-primary btn-sm" id="portShareBtn">⬇️ 下載</button>
+    </div>
+  </div>
+</div>
+
+<!-- Note Editor Modal -->
+<div class="modal-overlay" id="noteEditorModal" onclick="if(event.target.id==='noteEditorModal')closeModal('noteEditorModal')">
+  <div class="modal" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="noteEditorTitle">📝 新增筆記</div>
+    <div class="form-label">標題</div>
+    <input class="input" id="noteTitle" placeholder="筆記標題…">
+    <div class="form-label">科目</div>
+    <select class="input" id="noteSubject">
+      <option>數學</option><option>物理</option><option>化學</option>
+      <option>國語文</option><option>英語文</option><option>歷史</option><option>地理</option><option>其他</option>
+    </select>
+    <div class="form-label">內容</div>
+    <textarea class="input note-editor" id="noteContent" style="min-height:200px;font-family:'Noto Sans TC',sans-serif;" placeholder="在這裡寫筆記…
+
+支援：
+• 一般文字
+• 重點列表
+• 考試準備
+
+輸入後可以讓 AI 幫你整理！"></textarea>
+    <div style="display:flex;gap:6px;margin-top:8px;">
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="aiOrganizeNote()">🤖 AI 整理筆記</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="aiSummarizeNote()">✨ AI 摘要</button>
+    </div>
+    <div id="noteAiResult" style="margin-top:10px;display:none;background:#f0eeff;border-radius:12px;padding:14px;font-size:13px;line-height:1.7;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="noteDeleteBtn" style="display:none;" onclick="deleteCurrentNote()">🗑</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="closeModal('noteEditorModal')">取消</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="saveNote()">💾 儲存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<canvas id="confettiCanvas"></canvas>
+<div id="achievementPopup"><span class="achieve-icon" id="achieveIcon">🏆</span><div class="achieve-title">成就解鎖！</div><div class="achieve-name" id="achieveName"></div></div>
+
+<!-- ════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════
+// DATA CONSTANTS
+// ═══════════════════════════════════════
+const TIMETABLE={
+  periods:[
+    {no:1,time:"08:00\n08:50"},{no:2,time:"09:00\n09:50"},{no:3,time:"10:00\n10:50"},
+    {no:4,time:"11:00\n11:50"},{no:5,time:"13:05\n13:55"},{no:6,time:"14:05\n14:55"},
+    {no:7,time:"15:15\n16:05"},{no:8,time:"16:10\n17:00"},
+  ],
+  days:["一","二","三","四","五"],
+  cells:[
+    ["國語文\n吳品誼","學思心創題\n高鶴菁","英語文\n林旻萱","地理\n高鶴菁","英語文\n林旻萱"],
+    ["地球科學\n陳羿文","學思心創題\n高鶴菁","彈性學習\n自主學習","數學\n陳國雄","英語文\n林旻萱"],
+    ["地理\n高鶴菁","物理\n吳隆枝","體育\n林家偉","人際關係\n陳怡君","數學\n陳國雄"],
+    ["歷史\n連浩雅","數學\n陳國雄","國語文\n吳品誼","人際關係\n陳怡君","公民與社會\n陳怡君"],
+    ["數學\n陳國雄","閩南語文\n黃煜安","公民與社會\n陳怡君","班會\n陳怡君","國語文\n吳品誼"],
+    ["物理\n吳隆枝","音樂\n陳麗絹","生命教育\n黃思騰","團體活動","國語文\n吳品誼"],
+    ["體育\n林家偉","歷史\n連浩雅","彈性學習\n充廣補強","英語文\n林旻萱","地球科學\n陳羿文"],
+    ["英文輔導\n林旻萱","國文輔導\n吳品誼","數學輔導\n陳國雄","—","—"],
+  ]
+};
+// CRAM schedule by DAY index (0=Mon,1=Tue,2=Wed,3=Thu,4=Fri)
+const CRAM={0:{emoji:"⚗️",name:"化學超修"},2:{emoji:"🔭",name:"物理超修"},3:{emoji:"📖",name:"英文學測"},4:{emoji:"📐",name:"數學進度"}};
+const SUBJECT_COLORS={
+  "國語文":"#FF6B6B","英語文":"#4ECDC4","數學":"#45B7D1","地理":"#96CEB4","歷史":"#e6b800",
+  "物理":"#DDA0DD","地球科學":"#98D8C8","體育":"#F7DC6F","音樂":"#F8A5C2",
+  "公民與社會":"#A29BFE","生命教育":"#FD79A8","閩南語文":"#FDCB6E","彈性學習":"#B2BABB",
+  "人際關係":"#6C5CE7","學思心創題":"#00CEC9","英文輔導":"#4ECDC4","國文輔導":"#FF6B6B",
+  "數學輔導":"#45B7D1","班會":"#E17055","團體活動":"#55EFC4","化學":"#FF7675",
+};
+const TYPE_COLORS={school:"#74b9ff",exam:"#e17055",holiday:"#00cec9",important:"#a29bfe",event:"#6c5ce7",personal:"#55efc4"};
+const SCHOOL_EVENTS=[
+  {id:"s1",date:"2026-02-23",title:"🎉 開學日",type:"school",important:true,fixed:true},
+  {id:"s2",date:"2026-02-25",title:"📢 學測公布成績",type:"school",fixed:true},
+  {id:"s3",date:"2026-02-27",title:"🏖️ 228和平紀念日補假",type:"holiday",fixed:true},
+  {id:"s4",date:"2026-03-06",title:"📋 第一階段選社截止",type:"important",important:true,fixed:true},
+  {id:"s5",date:"2026-03-09",title:"🧠 九大職能星職能測驗",type:"important",important:true,fixed:true},
+  {id:"s6",date:"2026-03-12",title:"🎭 第一次社團活動",type:"school",fixed:true},
+  {id:"s7",date:"2026-03-13",title:"📄 高一發註冊單",type:"school",fixed:true},
+  {id:"s8",date:"2026-03-23",title:"📝 第一次期中考（Day 1）",type:"exam",important:true,fixed:true,startTime:"08:00",endTime:"17:00"},
+  {id:"s9",date:"2026-03-24",title:"📝 第一次期中考（Day 2）",type:"exam",important:true,fixed:true},
+  {id:"s10",date:"2026-04-09",title:"🎭 第二次社團活動",type:"school",fixed:true},
+  {id:"s11",date:"2026-04-10",title:"👨‍👩‍👧 第一次家長委員會",type:"school",fixed:true},
+  {id:"s12",date:"2026-05-12",title:"📝 第二次期中考（Day 1）",type:"exam",important:true,fixed:true},
+  {id:"s13",date:"2026-05-13",title:"📝 第二次期中考（Day 2）",type:"exam",important:true,fixed:true},
+  {id:"s14",date:"2026-05-14",title:"📝 第二次期中考（Day 3）",type:"exam",important:true,fixed:true},
+  {id:"s15",date:"2026-05-23",title:"🏐 高一班際排球賽",type:"event",important:true,fixed:true},
+  {id:"s16",date:"2026-05-28",title:"ℹ️ 實驗班選組說明會",type:"important",important:true,fixed:true},
+  {id:"s17",date:"2026-06-01",title:"📋 高一升高二選組開始",type:"important",important:true,fixed:true},
+  {id:"s18",date:"2026-06-19",title:"🏮 端午節放假",type:"holiday",fixed:true},
+  {id:"s19",date:"2026-06-24",title:"🎨 自主學習成果發表會",type:"event",important:true,fixed:true},
+  {id:"s20",date:"2026-06-26",title:"📝 期末考（Day 1）",type:"exam",important:true,fixed:true},
+  {id:"s21",date:"2026-06-29",title:"📝 期末考（Day 2）",type:"exam",important:true,fixed:true},
+  {id:"s22",date:"2026-06-30",title:"📝 期末考（Day 3）",type:"exam",important:true,fixed:true},
+  {id:"s23",date:"2026-07-01",title:"☀️ 暑假開始！",type:"holiday",important:true,fixed:true},
+  {id:"s24",date:"2026-08-03",title:"📤 課程學習成果上傳截止",type:"important",important:true,fixed:true},
+];
+const BUILTIN_QUOTES=[
+  {text:"你現在的努力，是在為未來的自己鋪路。",author:"佚名"},
+  {text:"成功不是終點，失敗不是末路，重要的是繼續前行的勇氣。",author:"邱吉爾"},
+  {text:"每天進步1%，一年後你會強大37倍。",author:"《原子習慣》"},
+  {text:"我不是天才，我只是保持長時間的專注。",author:"愛因斯坦"},
+  {text:"讀書的目的，不只是為了考試，而是為了認識更好的自己。",author:"佚名"},
+  {text:"你不必很厲害才能開始，但你必須開始才能很厲害。",author:"佚名"},
+  {text:"先完成，再完美。",author:"佚名"},
+  {text:"The secret of getting ahead is getting started.",author:"Mark Twain"},
+  {text:"夢想不會逃跑，逃跑的永遠是自己。",author:"佚名"},
+  {text:"每一個你不想起床的清晨，都是改變的開始。",author:"佚名"},
+];
+const DEFAULT_VOCAB=[
+  {id:"v1",word:"endeavor",phonetic:"/ɪnˈdevər/",meaning:"努力；盡力",example:"We will endeavor to finish the project on time.",subject:"英語文",mastered:false},
+  {id:"v2",word:"persevere",phonetic:"/ˌpɜːrsɪˈvɪər/",meaning:"堅持；不屈不撓",example:"You must persevere even when things get difficult.",subject:"英語文",mastered:false},
+  {id:"v3",word:"eloquent",phonetic:"/ˈeləkwənt/",meaning:"雄辯的；有說服力的",example:"She gave an eloquent speech at graduation.",subject:"英語文",mastered:false},
+  {id:"v4",word:"meticulous",phonetic:"/məˈtɪkjələs/",meaning:"一絲不苟的；極仔細的",example:"He was meticulous in his laboratory work.",subject:"英語文",mastered:false},
+  {id:"v5",word:"ambiguous",phonetic:"/æmˈbɪɡjuəs/",meaning:"模稜兩可的；含糊的",example:"The instructions were ambiguous and confusing.",subject:"英語文",mastered:false},
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let state={events:[...SCHOOL_EVENTS],todos:[],savedQuotes:[],pomCount:0,currentQuote:null,notes:[],vocab:[...DEFAULT_VOCAB]};
+let calState={year:new Date().getFullYear(),month:new Date().getMonth(),selected:todayStr(),view:"month"};
+let pomState={active:false,time:25*60,isBreak:false,timer:null,duration:25};
+let currentTodoSubject="數學";
+let currentPriority="normal";
+let todoFilter="all";
+let selectedEventType="personal";
+let selectedEvColor="";
+let showCramRow=true;
+let studySubjects=new Set(["數學","物理","化學"]);
+let editingEventId=null;
+let portSubjectFilter="all";
+let noteSubjectFilter="all";
+let editingNoteId=null;
+let currentVocabIndex=0;
+let currentFocusUrl="";
+let weatherCache=null;
+let weatherLastFetch=0;
+
+// ═══════════════════════════════════════
+// FIREBASE & AUTH
+// ═══════════════════════════════════════
+let firebaseApp=null,firestoreDb=null,currentUser=null,syncTimeout=null;
+
+function initFirebase(config){
+  try{
+    if(firebaseApp){try{firebase.app("brainy").delete();}catch(e){}}
+    firebaseApp=firebase.initializeApp(config,"brainy");
+    firestoreDb=firebase.firestore(firebaseApp);
+    firebase.auth(firebaseApp).onAuthStateChanged(user=>{
+      currentUser=user;updateSyncUI();
+      if(user)pullFromFirestore();
+    });
+    return true;
+  }catch(e){console.error("Firebase:",e);return false;}
+}
+function updateSyncUI(){
+  const dot=document.getElementById("syncDot"),text=document.getElementById("syncText"),userEl=document.getElementById("syncUser"),loginBtn=document.getElementById("syncLoginBtn"),avatar=document.getElementById("homeAvatar");
+  if(currentUser){
+    dot.className="sync-dot online";text.textContent="已同步 ✓";
+    userEl.textContent=currentUser.email||"已登入";loginBtn.textContent="同步";loginBtn.onclick=syncNow;avatar.textContent="👤";
+    document.getElementById("settingsUserName").textContent=currentUser.displayName||"使用者";
+    document.getElementById("settingsUserEmail").textContent=currentUser.email||"";
+    document.getElementById("settingsLoginBtn").style.display="none";
+    document.getElementById("settingsLogoutBtn").style.display="block";
+  }else{
+    dot.className="sync-dot offline";
+    text.textContent=firestoreDb?"未登入":"本地模式（未設定 Firebase）";
+    userEl.textContent=firestoreDb?"已連接 Firebase，請登入":"在設定頁設定 Firebase";
+    loginBtn.textContent=firestoreDb?"登入":"設定";loginBtn.onclick=firestoreDb?signIn:()=>goTo('settings');avatar.textContent="🎓";
+    document.getElementById("settingsUserName").textContent="未登入";document.getElementById("settingsUserEmail").textContent="";
+    document.getElementById("settingsLoginBtn").style.display="block";document.getElementById("settingsLogoutBtn").style.display="none";
+  }
+}
+function signIn(){
+  if(!firestoreDb){toast("⚠️ 請先設定 Firebase");goTo('settings');return;}
+  firebase.auth(firebaseApp).signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(()=>toast("✅ 登入成功！")).catch(e=>toast("❌ 登入失敗："+e.message));
+}
+function signOut(){firebase.auth(firebaseApp).signOut().then(()=>{currentUser=null;updateSyncUI();toast("已登出");});}
+function scheduleSyncToFirestore(){
+  if(!firestoreDb||!currentUser)return;
+  clearTimeout(syncTimeout);syncTimeout=setTimeout(pushToFirestore,2000);
+  document.getElementById("syncDot").className="sync-dot syncing";
+}
+async function pushToFirestore(){
+  if(!firestoreDb||!currentUser)return;
+  try{
+    await firestoreDb.collection("users").doc(currentUser.uid).set({
+      events:state.events.filter(e=>!e.fixed),todos:state.todos,savedQuotes:state.savedQuotes,
+      pomCount:state.pomCount,notes:state.notes,vocab:state.vocab,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    document.getElementById("syncDot").className="sync-dot online";
+    document.getElementById("syncText").textContent="已同步 ✓ "+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){document.getElementById("syncDot").className="sync-dot offline";document.getElementById("syncText").textContent="同步失敗";}
+}
+async function pullFromFirestore(){
+  if(!firestoreDb||!currentUser)return;
+  try{
+    document.getElementById("syncDot").className="sync-dot syncing";
+    document.getElementById("syncText").textContent="同步中…";
+    const doc=await firestoreDb.collection("users").doc(currentUser.uid).get();
+    if(doc.exists){
+      const d=doc.data();
+      if(d.events){state.events=[...SCHOOL_EVENTS,...d.events.filter(e=>!e.fixed)];state.events.sort((a,b)=>a.date.localeCompare(b.date));}
+      if(d.todos)state.todos=d.todos;if(d.savedQuotes)state.savedQuotes=d.savedQuotes;
+      if(d.pomCount)state.pomCount=d.pomCount;if(d.notes)state.notes=d.notes;if(d.vocab)state.vocab=d.vocab;
+      saveLocalState();renderHome();renderCalendar();renderTodos();renderNotes();
+      document.getElementById("syncText").textContent="已同步 ✓";document.getElementById("syncDot").className="sync-dot online";
+      toast("☁️ 資料已從雲端同步！");
+    }else pushToFirestore();
+  }catch(e){document.getElementById("syncDot").className="sync-dot offline";document.getElementById("syncText").textContent="同步失敗";}
+}
+async function syncNow(){if(!firestoreDb||!currentUser){toast("請先登入");return;}await pullFromFirestore();}
+
+// ═══════════════════════════════════════
+// LOCAL STORAGE
+// ═══════════════════════════════════════
+function saveLocalState(){
+  const personalEvents=state.events.filter(e=>!e.fixed);
+  localStorage.setItem("brainy_v4_state",JSON.stringify({events:personalEvents,todos:state.todos,savedQuotes:state.savedQuotes,pomCount:state.pomCount,notes:state.notes,vocab:state.vocab}));
+  scheduleSyncToFirestore();
+}
+function loadLocalState(){
+  const raw=localStorage.getItem("brainy_v4_state")||localStorage.getItem("brainy_v3_state");
+  if(raw){
+    try{
+      const d=JSON.parse(raw);
+      if(d.events){state.events=[...SCHOOL_EVENTS,...d.events.filter(e=>!e.fixed)];state.events.sort((a,b)=>a.date.localeCompare(b.date));}
+      if(d.todos)state.todos=d.todos;if(d.savedQuotes)state.savedQuotes=d.savedQuotes;
+      if(d.pomCount)state.pomCount=d.pomCount;if(d.notes)state.notes=d.notes||[];
+      if(d.vocab&&d.vocab.length)state.vocab=d.vocab;
+    }catch(e){}
+  }
+}
+function saveState(){saveLocalState();}
+
+// ═══════════════════════════════════════
+// API KEY MANAGEMENT
+// ═══════════════════════════════════════
+function getApiKey(){return localStorage.getItem("brainy_api_key")||"";}
+function saveApiKey(){
+  const k=document.getElementById("settingsApiKey").value.trim();
+  if(!k){toast("⚠️ 請輸入 API Key");return;}
+  if(!k.startsWith("AIza")){toast("⚠️ Gemini Key 格式不正確（應以 AIza 開頭）");return;}
+  localStorage.setItem("brainy_api_key",k);
+  // 清除舊的模型快取，讓它重新偵測最佳模型
+  localStorage.removeItem("brainy_gemini_model");
+  localStorage.removeItem("brainy_gemini_model_ts");
+  _activeGeminiModel=null;
+  document.getElementById("apiKeyStatus").textContent="✅ 已儲存，正在偵測最佳模型…";document.getElementById("apiKeyStatus").style.color="var(--success)";
+  toast("✅ Gemini API Key 已儲存！");document.getElementById("aiKeyWarning").style.display="none";
+  // 背景偵測最佳模型並更新狀態
+  detectBestGeminiModel(k).then(m=>{document.getElementById("apiKeyStatus").textContent=`✅ 使用中：${m}`;}).catch(()=>{});
+}
+function clearApiKey(){localStorage.removeItem("brainy_api_key");document.getElementById("settingsApiKey").value="";document.getElementById("apiKeyStatus").textContent="已清除";}
+function toggleApiKeyVis(id){const el=document.getElementById(id);el.type=el.type==="password"?"text":"password";}
+function checkApiKey(){
+  const k=getApiKey();
+  const w=document.getElementById("aiKeyWarning");
+  if(!k&&w)w.style.display="block";
+  else if(w)w.style.display="none";
+  if(k)document.getElementById("settingsApiKey").value=k;
+  // 顯示目前使用中的模型
+  const modelEl=document.getElementById("geminiModelStatus");
+  if(modelEl){
+    const saved=localStorage.getItem("brainy_gemini_model");
+    modelEl.textContent=saved?`🤖 目前模型：${saved}`:"（儲存 Key 後自動偵測最佳模型）";
+  }
+}
+
+// ═══════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════
+function saveFirebaseConfig(){
+  const raw=document.getElementById("settingsFirebaseConfig").value.trim();
+  try{
+    const config=JSON.parse(raw);
+    if(!config.apiKey)throw new Error("缺少 apiKey");
+    localStorage.setItem("brainy_firebase_config",JSON.stringify(config));
+    const ok=initFirebase(config);
+    if(ok){document.getElementById("firebaseStatus").textContent="✅ Firebase 連線成功！";document.getElementById("firebaseStatus").style.color="var(--success)";toast("✅ Firebase 已連線！");}
+  }catch(e){document.getElementById("firebaseStatus").textContent="❌ 格式錯誤："+e.message;document.getElementById("firebaseStatus").style.color="var(--warn)";}
+}
+function clearFirebaseConfig(){localStorage.removeItem("brainy_firebase_config");document.getElementById("settingsFirebaseConfig").value="";toast("已清除 Firebase 設定");}
+function loadFirebaseConfig(){
+  const saved=localStorage.getItem("brainy_firebase_config");
+  if(saved){try{const c=JSON.parse(saved);document.getElementById("settingsFirebaseConfig").value=JSON.stringify(c,null,2);initFirebase(c);}catch(e){}}
+}
+
+// ═══════════════════════════════════════
+// WEATHER — Open-Meteo (free, no key) + Samsung-style UI
+// ═══════════════════════════════════════
+
+// City coordinates map for Taiwan
+const CITY_COORDS = {
+  "臺南市":{lat:22.9997,lon:120.2270},"臺北市":{lat:25.0330,lon:121.5654},
+  "新北市":{lat:25.0169,lon:121.4627},"桃園市":{lat:24.9936,lon:121.3010},
+  "臺中市":{lat:24.1477,lon:120.6736},"高雄市":{lat:22.6273,lon:120.3014},
+  "嘉義市":{lat:23.4801,lon:120.4491}
+};
+const WMO_MAP = {
+  0:["晴天","☀️"],1:["大致晴朗","🌤"],2:["部分多雲","⛅"],3:["陰天","☁️"],
+  45:["霧","🌫"],48:["霧凇","🌫"],
+  51:["細雨","🌦"],53:["中雨","🌦"],55:["大雨","🌧"],
+  61:["小雨","🌧"],63:["中雨","🌧"],65:["大雨","🌧"],
+  71:["小雪","🌨"],73:["中雪","❄️"],75:["大雪","❄️"],
+  80:["陣雨","🌦"],81:["大陣雨","🌧"],82:["暴雨","⛈"],
+  95:["雷陣雨","⛈"],96:["雷雨夾雹","⛈"],99:["大雷雨夾雹","⛈"]
+};
+function wmoInfo(code){return WMO_MAP[code]||["未知天氣","🌡"];}
+
+let weatherUserLat=null, weatherUserLon=null;
+
+function getCwaKey(){return localStorage.getItem("brainy_cwa_key")||"";}
+function saveCwaKey(){
+  const k=document.getElementById("cwaKeyInput")?.value?.trim()||document.getElementById("settingsCwaKey")?.value?.trim()||"";
+  if(!k){toast("⚠️ 請輸入 CWA API Key");return;}
+  localStorage.setItem("brainy_cwa_key",k);
+  toast("✅ CWA Key 已儲存，使用進階台灣預報！");
+  fetchWeather(true);
+}
+function saveCwaKeyFromSettings(){saveCwaKey();}
+function clearCwaKey(){localStorage.removeItem("brainy_cwa_key");toast("已清除 CWA Key");}
+
+async function fetchWeatherAuto(){
+  if(!navigator.geolocation){toast("⚠️ 此裝置不支援 GPS");fetchWeather(true);return;}
+  toast("📍 取得 GPS 位置中…");
+  navigator.geolocation.getCurrentPosition(pos=>{
+    weatherUserLat=pos.coords.latitude;
+    weatherUserLon=pos.coords.longitude;
+    fetchWeatherByCoords(weatherUserLat,weatherUserLon);
+  },err=>{
+    toast("⚠️ GPS 取得失敗，使用預設城市");
+    fetchWeather(true);
+  },{timeout:8000});
+}
+
+async function fetchWeather(force=false){
+  const city=document.getElementById("weatherCity")?.value||"臺南市";
+  const coords=CITY_COORDS[city]||CITY_COORDS["臺南市"];
+  fetchWeatherByCoords(coords.lat,coords.lon,city);
+}
+
+async function fetchWeatherByCoords(lat,lon,cityName){
+  const now=Date.now();
+  if(!cityName){
+    // Try reverse geocoding using a simple lookup
+    cityName="目前位置";
+  }
+  document.getElementById("wLocNew").textContent="📍 "+cityName+" · 更新中…";
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&wind_speed_unit=ms&timezone=Asia%2FTaipei&forecast_days=7`;
+    const resp=await fetch(url);
+    if(!resp.ok)throw new Error("API error");
+    const d=await resp.json();
+    const cur=d.current;
+    const [desc,icon]=wmoInfo(cur.weather_code);
+    const temp=Math.round(cur.temperature_2m);
+    const feels=Math.round(cur.apparent_temperature);
+    const hum=Math.round(cur.relative_humidity_2m);
+    const wind=cur.wind_speed_10m?.toFixed(1)||"--";
+    const uv=cur.uv_index?.toFixed(1)||"--";
+
+    // Hourly (next 12 hours)
+    const nowHour=new Date().getHours();
+    const hourlyDiv=document.getElementById("wHourlyForecast");
+    if(hourlyDiv){
+      let h="";
+      for(let i=0;i<12;i++){
+        const hi=(nowHour+i)%24;
+        const [hd,hic]=wmoInfo(d.hourly.weather_code[nowHour+i]||0);
+        const ht=Math.round(d.hourly.temperature_2m[nowHour+i]||temp);
+        const hr=d.hourly.precipitation_probability[nowHour+i]||0;
+        const label=i===0?"現在":`${(nowHour+i)%24}時`;
+        h+=`<div style="text-align:center;min-width:52px;background:#f8f7ff;border-radius:12px;padding:8px 4px;flex-shrink:0;">
+          <div style="font-size:10px;color:var(--text3);font-weight:700;">${label}</div>
+          <div style="font-size:22px;margin:4px 0;">${hic}</div>
+          <div style="font-size:13px;font-weight:800;color:var(--text);">${ht}°</div>
+          <div style="font-size:10px;color:#74b9ff;">${hr}%</div>
+        </div>`;
+      }
+      hourlyDiv.innerHTML=h;
+    }
+
+    // 7-day forecast
+    const daily=d.daily;
+    const fcDiv=document.getElementById("wForecastFull");
+    if(fcDiv&&daily){
+      const dows=["日","一","二","三","四","五","六"];
+      fcDiv.innerHTML=daily.weather_code.map((wc,i)=>{
+        const [dd,di]=wmoInfo(wc);
+        const dt=new Date(daily.time[i]+"T00:00:00");
+        const dow=i===0?"今天":i===1?"明天":`週${dows[dt.getDay()]}`;
+        const mx=Math.round(daily.temperature_2m_max[i]);
+        const mn=Math.round(daily.temperature_2m_min[i]);
+        const pr=daily.precipitation_probability_max[i]||0;
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid #f0f0f0;">
+          <div style="font-size:24px;width:34px;">${di}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;">${dow}</div>
+            <div style="font-size:11px;color:var(--text3);">${dd}</div>
+          </div>
+          <div style="font-size:12px;color:#74b9ff;">☔${pr}%</div>
+          <div style="font-weight:800;font-size:15px;">${mx}°<span style="color:var(--text3);font-size:12px;font-weight:400;">/${mn}°</span></div>
+        </div>`;
+      }).join("");
+    }
+
+    // Update Samsung-style card
+    document.getElementById("wTempNew").textContent=temp+"°";
+    document.getElementById("wDescNew").textContent=desc;
+    document.getElementById("wIconNew").textContent=icon;
+    document.getElementById("wLocNew").textContent="📍 "+cityName;
+    document.getElementById("wFeelsLike").textContent="體感 "+feels+"°";
+    document.getElementById("wHumNew").textContent=hum+"%";
+    document.getElementById("wRainNew").textContent=(d.hourly.precipitation_probability[nowHour]||0)+"%";
+    document.getElementById("wWindNew").textContent=wind;
+    document.getElementById("wUVNew").textContent=uv;
+    document.getElementById("wUpdatedNew").textContent="更新："+new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"});
+
+    // Update home mini widget
+    applyWeather({temp,desc,icon,humidity:hum+"%",rain:(d.hourly.precipitation_probability[nowHour]||0)+"%",wind,loc:cityName});
+
+    // Cache
+    weatherCache={temp,desc,icon,humidity:hum+"%",rain:(d.hourly.precipitation_probability[nowHour]||0)+"%",wind,loc:cityName};
+    weatherLastFetch=now;
+    localStorage.setItem("brainy_weather_cache",JSON.stringify({data:weatherCache,ts:now}));
+
+  }catch(err){
+    console.error("Weather err:",err);
+    const cached=localStorage.getItem("brainy_weather_cache");
+    if(cached){try{const c=JSON.parse(cached);applyWeather(c.data);document.getElementById("wLocNew").textContent="📍 "+cityName+" (快取)";}catch(e){}}
+    else document.getElementById("wDescNew").textContent="⚠️ 無法取得天氣，請確認網路";
+  }
+}
+
+function applyWeather(wd){
+  // Home mini widget (keep compat)
+  const hw=document.getElementById("homeWeatherMini");
+  if(hw&&wd.temp!="--"){
+    hw.style.display="block";
+    const hIcon=document.getElementById("homeWeatherIcon");
+    const hTemp=document.getElementById("homeWeatherTemp");
+    const hDesc=document.getElementById("homeWeatherDesc");
+    const hLoc=document.getElementById("homeWeatherLoc");
+    if(hIcon)hIcon.textContent=wd.icon;
+    if(hTemp)hTemp.textContent=wd.temp;
+    if(hDesc)hDesc.textContent=wd.desc;
+    if(hLoc)hLoc.textContent=wd.loc;
+  }
+  // Legacy compat elements
+  const el=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  el("wTemp",wd.temp);el("wDesc",wd.desc);el("wIcon",wd.icon);
+  el("wLoc",wd.loc);el("wHumidity",wd.humidity);el("wRain",wd.rain);el("wWind",wd.wind);
+}
+
+// ── Earthquake (USGS free API) ──
+async function fetchEarthquakes(){
+  const div=document.getElementById("earthquakeList");
+  if(!div)return;
+  div.textContent="載入中…";
+  try{
+    const url="https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=3&minlatitude=21&maxlatitude=26&minlongitude=119&maxlongitude=123&limit=8&orderby=time";
+    const resp=await fetch(url);
+    const data=await resp.json();
+    const quakes=data.features;
+    if(!quakes||!quakes.length){div.textContent="近期無顯著地震 ✅";return;}
+    
+    // Check for significant quake for alert banner
+    const big=quakes.find(q=>q.properties.mag>=5);
+    if(big){
+      const alert=document.getElementById("alertBanner");
+      if(alert){
+        alert.style.display="block";
+        document.getElementById("alertType").textContent="🌍 地震警報";
+        document.getElementById("alertContent").textContent=`規模 M${big.properties.mag.toFixed(1)} — ${big.properties.place}`;
+        document.getElementById("alertTime").textContent=new Date(big.properties.time).toLocaleString("zh-TW");
+      }
+    }
+
+    div.innerHTML=quakes.map(q=>{
+      const mag=q.properties.mag?.toFixed(1)||"?";
+      const place=q.properties.place||"未知地點";
+      const time=new Date(q.properties.time).toLocaleString("zh-TW",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});
+      const magNum=parseFloat(mag);
+      const color=magNum>=6?"#d63031":magNum>=5?"#e17055":magNum>=4?"#fdcb6e":"#74b9ff";
+      const emoji=magNum>=6?"🔴":magNum>=5?"🟠":magNum>=4?"🟡":"🔵";
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;">
+        <div style="font-size:22px;font-weight:900;color:${color};min-width:44px;text-align:center;">${emoji}${mag}</div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);">${place}</div>
+          <div style="font-size:11px;color:var(--text3);">${time}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    div.textContent="⚠️ 地震資料載入失敗（請確認網路）";
+  }
+}
+
+// ── Typhoon (JMA RSS) ──
+async function fetchTyphoon(){
+  const div=document.getElementById("typhoonStatus");
+  if(!div)return;
+  div.textContent="檢查颱風動態中…";
+  try{
+    // Use a CORS proxy for JMA typhoon data or NOAA Pacific
+    // Try fetching from NOAA via a publicly accessible endpoint
+    const url="https://www.nhc.noaa.gov/CurrentStorms.json";
+    const resp=await fetch(url);
+    const data=await resp.json();
+    const wpacStorms=Object.values(data).filter(s=>s.basin==="wp"||s.basin==="cp");
+    if(!wpacStorms.length){
+      div.innerHTML="<div style='color:var(--success);font-weight:700;'>✅ 目前西太平洋無活躍颱風</div><div style='font-size:11px;color:var(--text3);margin-top:4px;'>資料來源：NOAA NHC</div>";
+    } else {
+      div.innerHTML=wpacStorms.map(s=>`<div style='margin-bottom:8px;'>
+        <div style='font-weight:700;color:var(--warn);'>🌀 ${s.name||"熱帶低壓"}</div>
+        <div style='font-size:12px;color:var(--text2);'>${s.classification||""} · 風速：${s.maxWindMph||"--"}mph</div>
+      </div>`).join("") + "<div style='font-size:10px;color:var(--text3);'>資料來源：NOAA NHC</div>";
+      // Show alert
+      const alert=document.getElementById("alertBanner");
+      if(alert){
+        alert.style.display="block";
+        document.getElementById("alertType").textContent="🌀 颱風動態";
+        document.getElementById("alertContent").textContent=`西太平洋有 ${wpacStorms.length} 個活躍熱帶系統，請密切注意`;
+        document.getElementById("alertTime").textContent=new Date().toLocaleString("zh-TW");
+      }
+    }
+  }catch(e){
+    // Fallback - fetch CWA typhoon if key available
+    const cwaKey=getCwaKey();
+    if(cwaKey){
+      try{
+        const resp=await fetch(`https://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0034-005?Authorization=${cwaKey}&format=JSON`);
+        const data=await resp.json();
+        if(data.success==="true"){
+          div.innerHTML="<div style='color:var(--success);font-weight:700;'>✅ 依 CWA 資料：目前無颱風警報</div>";
+        }
+      }catch(e2){
+        div.innerHTML="<div style='color:var(--text3);font-size:12px;'>⚠️ 颱風資料暫時無法取得，請查看 <a href='https://www.cwa.gov.tw' target='_blank' style='color:var(--primary);'>中央氣象署</a></div>";
+      }
+    } else {
+      div.innerHTML="<div style='color:var(--text2);font-size:12px;'>無法取得颱風資料（CORS限制），建議直接查看 <a href='https://www.cwa.gov.tw/V8/C/P/Typhoon/TY_NEWS.html' target='_blank' style='color:var(--primary);'>CWA 颱風資訊</a></div>";
+    }
+  }
+}
+
+function startWeatherAutoRefresh(){
+  const cached=localStorage.getItem("brainy_weather_cache");
+  if(cached){try{const c=JSON.parse(cached);weatherCache=c.data;weatherLastFetch=c.ts;applyWeather(c.data);}catch(e){}}
+  fetchWeather(false);
+  fetchEarthquakes();
+  fetchTyphoon();
+  setInterval(()=>fetchWeather(false),1800000);
+  setInterval(()=>{fetchEarthquakes();fetchTyphoon();},3600000);
+}
+
+// ═══════════════════════════════════════
+// AI CALL — 自動選擇最佳可用AI
+// 優先順序: 1. Google Gemini (需API Key) 2. Puter.js (完全免費，無需任何Key)
+// ═══════════════════════════════════════
+
+// ── Puter.js (免費AI，無需API Key、無需信用卡) ──
+let puterReady = typeof puter !== 'undefined';
+window.addEventListener('load', () => { puterReady = typeof puter !== 'undefined'; });
+
+async function aiCallPuter(prompt, systemPrompt='', imageBase64=null, imageMime=null) {
+  if (!puterReady && typeof puter !== 'undefined') puterReady = true;
+  if (!puterReady) throw new Error('Puter.js 未載入');
+  
+  const fullPrompt = systemPrompt ? systemPrompt + '\n\n' + prompt : prompt;
+  
+  if (imageBase64) {
+    // Puter.js vision support
+    const response = await puter.ai.chat(fullPrompt, {
+      model: 'gemini-2.5-flash',
+      attachments: [{type: 'image', data: imageBase64, mimeType: imageMime||'image/jpeg'}]
+    });
+    return typeof response === 'string' ? response : response?.message?.content?.[0]?.text || response?.text || '';
+  } else {
+    const response = await puter.ai.chat(fullPrompt, { model: 'gemini-2.5-flash' });
+    return typeof response === 'string' ? response : response?.message?.content?.[0]?.text || response?.text || '';
+  }
+}
+
+// AI CALL — Google Gemini（自動偵測最佳模型）
+
+// 優先順序：最強 → 最快，新模型上線時只需在前面加入即可
+const GEMINI_MODEL_PRIORITY = [
+  "gemini-2.5-pro-preview-06-05",
+  "gemini-2.5-pro-preview-05-06",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-pro",
+];
+
+let _activeGeminiModel = localStorage.getItem("brainy_gemini_model") || null;
+let _modelVerifiedAt = parseInt(localStorage.getItem("brainy_gemini_model_ts") || "0");
+
+async function detectBestGeminiModel(key) {
+  // 每 24 小時重新偵測一次，確保自動跟上新模型
+  if (_activeGeminiModel && Date.now() - _modelVerifiedAt < 86400000) return _activeGeminiModel;
+  for (const model of GEMINI_MODEL_PRIORITY) {
+    try {
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+        { method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({contents:[{parts:[{text:"hi"}]}], generationConfig:{maxOutputTokens:5}}) }
+      );
+      if (resp.ok) {
+        _activeGeminiModel = model;
+        _modelVerifiedAt = Date.now();
+        localStorage.setItem("brainy_gemini_model", model);
+        localStorage.setItem("brainy_gemini_model_ts", String(_modelVerifiedAt));
+        console.log("✅ 使用 Gemini 模型:", model);
+        return model;
+      }
+    } catch(e) { /* 試下一個 */ }
+  }
+  throw new Error("找不到可用的 Gemini 模型，請確認 API Key 正確");
+}
+
+async function aiCallGemini(messages, maxTokens=800) {
+  const key = getApiKey();
+  if (!key) throw new Error("未設定 Gemini API Key");
+  const model = await detectBestGeminiModel(key);
+
+  // 將 Anthropic 格式 [{role,content}] 轉換為 Gemini 格式
+  const contents = messages
+    .filter(m => m.role !== "system")
+    .map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+
+  // 若有 system message，附加在第一個 user message 前
+  const systemMsg = messages.find(m => m.role === "system");
+  if (systemMsg && contents.length > 0 && contents[0].role === "user") {
+    contents[0].parts[0].text = systemMsg.content + "\n\n" + contents[0].parts[0].text;
+  }
+
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    { method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ contents, generationConfig:{ maxOutputTokens: maxTokens, temperature: 0.7 } }) }
+  );
+  if (!resp.ok) {
+    const e = await resp.json();
+    // 若此模型失效，清除快取，下次自動換更好的
+    if (resp.status === 404 || resp.status === 400) {
+      localStorage.removeItem("brainy_gemini_model");
+      localStorage.removeItem("brainy_gemini_model_ts");
+      _activeGeminiModel = null;
+    }
+    throw new Error(e.error?.message || "Gemini API 錯誤");
+  }
+  const d = await resp.json();
+  return d.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+// ── Master AI call: Gemini if key set, else Puter.js ──
+async function aiCall(messages, maxTokens=800) {
+  const key = getApiKey();
+  if (key) {
+    return await aiCallGemini(messages, maxTokens);
+  }
+  // Fallback to Puter.js (free, no key needed)
+  const systemMsg = messages.find(m=>m.role==='system')?.content||'';
+  const userMsg = messages.filter(m=>m.role==='user').map(m=>m.content).join('\n');
+  try {
+    return await aiCallPuter(userMsg, systemMsg);
+  } catch(e) {
+    throw new Error('AI 不可用：請設定 Gemini API Key 或確認網路連線');
+  }
+}
+
+// ═══════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════
+function updateClock(){
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,"0");
+  const m=String(now.getMinutes()).padStart(2,"0");
+  const s=String(now.getSeconds()).padStart(2,"0");
+  const ampm=now.getHours()<12?"AM":"PM";
+  const days=["週日","週一","週二","週三","週四","週五","週六"];
+  const months=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+
+  // Home clock
+  const ct=document.getElementById("clockTime");
+  if(ct)ct.textContent=`${h}:${m}`;
+  const ca=document.getElementById("clockAmpm");
+  if(ca)ca.textContent=ampm;
+  const cw=document.getElementById("clockWeekday");
+  if(cw)cw.textContent=`${now.getFullYear()}年${months[now.getMonth()]}${now.getDate()}日`;
+  const cd2=document.getElementById("clockDate2");
+  if(cd2)cd2.textContent=days[now.getDay()];
+
+  // Countdown to next exam
+  const ts=todayStr();
+  const nextExam=state.events.filter(e=>e.type==="exam"&&e.date>=ts).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const cc=document.getElementById("clockCountdown");
+  if(cc&&nextExam){
+    const diff=Math.ceil((new Date(nextExam.date)-new Date(ts))/(86400000));
+    cc.textContent=diff===0?"⚠️ 考試日！":diff===1?"⚠️ 明天考試！":`📝 距考試 ${diff} 天`;
+  }
+
+  // Study page clock
+  const sc=document.getElementById("studyClockTime");
+  if(sc)sc.textContent=`${h}:${m}:${s}`;
+  const scd=document.getElementById("studyClockDate");
+  if(scd)scd.textContent=`${now.getFullYear()}年${months[now.getMonth()]}${now.getDate()}日`;
+  const scc=document.getElementById("studyClockDay");
+  if(scc)scc.textContent=days[now.getDay()];
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+const ALL_PAGES=["home","tt","search","study","portfolio","cal","music","notes","weather","vocab","focus","settings"];
+const NAV_PAGES=["home","tt","search","study"];
+
+function goTo(page){
+  ALL_PAGES.forEach(p=>{
+    const el=document.getElementById("page-"+p);
+    if(el)el.classList.toggle("active",p===page);
+  });
+  NAV_PAGES.forEach(p=>{
+    const btn=document.getElementById("nav-"+p);
+    if(btn)btn.classList.toggle("active",p===page);
+  });
+  document.getElementById("nav-more").classList.remove("active");
+  window.scrollTo(0,0);
+  if(page==="home"){renderHome();}
+  if(page==="tt")renderTimetable();
+  if(page==="cal")renderCalendar();
+  if(page==="study"){renderTodos();document.getElementById("pomCount").textContent=state.pomCount;}
+  if(page==="portfolio")renderPortfolio();
+  if(page==="notes")renderNotes();
+  if(page==="vocab")renderVocab();
+  if(page==="weather"){if(!document.getElementById("cwaKeyInput").value)document.getElementById("cwaKeyInput").value=getCwaKey();fetchWeather(false);}
+}
+function openMore(){document.getElementById("moreOverlay").classList.add("open");}
+function closeMore(){document.getElementById("moreOverlay").classList.remove("open");}
+function handleAvatarClick(){goTo("settings");}
+
+// ═══════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════
+function renderHome(){
+  // Date
+  const now=new Date();
+  const days=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+  const months=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+  document.getElementById("homeDate").textContent=`${months[now.getMonth()]}${now.getDate()}日 ${days[now.getDay()]}`;
+  // Today's classes
+  const dow=now.getDay();// 0=Sun,1=Mon...
+  const colIdx=dow===0||dow===6?-1:dow-1;
+  const todayClassEl=document.getElementById("todayClasses");
+  const todayClassSub=document.getElementById("todayClassSub");
+  if(colIdx<0){todayClassEl.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px;">今天是週末，好好休息！🎉</div>';todayClassSub.textContent="";}
+  else{
+    const classes=TIMETABLE.cells.filter(r=>r[colIdx]&&r[colIdx]!=="—").map((r,i)=>{
+      const [name,teacher]=(r[colIdx]||"").split("\n");
+      const p=TIMETABLE.periods[i];
+      const color=SUBJECT_COLORS[name]||"#6c5ce7";
+      return `<div class="class-item" style="border-left-color:${color};">
+        <div class="class-time">${p.no}節<br>${p.time.replace("\n","<br>")}</div>
+        <div><div class="class-name">${name||""}</div><div class="class-teacher">${teacher||""}</div></div>
+      </div>`;
+    }).join("");
+    todayClassEl.innerHTML=classes||'<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px;">今天沒有課程</div>';
+    todayClassSub.textContent=`${days[dow]}`;
+  }
+  // Today alert
+  const ts=todayStr();
+  const todayEvents=state.events.filter(e=>e.date===ts&&e.important);
+  const alertEl=document.getElementById("todayAlert");
+  if(todayEvents.length){
+    alertEl.style.display="block";
+    document.getElementById("todayAlertContent").innerHTML=todayEvents.map(e=>`<div class="event-item"><div class="event-dot" style="background:${TYPE_COLORS[e.type]||"#6c5ce7"};"></div><div style="font-size:13px;font-weight:700;">${e.title}</div></div>`).join("");
+  }else alertEl.style.display="none";
+  // Upcoming events
+  const upcoming=state.events.filter(e=>e.date>=ts).slice(0,5);
+  document.getElementById("upcomingEvents").innerHTML=upcoming.length?upcoming.map(e=>{
+    const diff=Math.ceil((new Date(e.date)-new Date(ts))/86400000);
+    return `<div class="event-item"><div class="event-dot" style="background:${TYPE_COLORS[e.type]||"#6c5ce7"};"></div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${e.title}</div><div style="font-size:11px;color:var(--text3);">${e.date}</div></div>
+      <div class="event-badge">${diff===0?"今天":diff===1?"明天":diff+"天後"}</div></div>`;
+  }).join(""):`<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px;">近期無行程</div>`;
+  // Pending todos
+  const pending=state.todos.filter(t=>!t.done).slice(0,3);
+  const pendingCount=document.getElementById("pendingCount");
+  pendingCount.textContent=`${state.todos.filter(t=>!t.done).length} 項`;
+  document.getElementById("pendingTodos").innerHTML=pending.length?pending.map(t=>`<div class="event-item"><div style="font-size:16px;">${t.priority==="high"?"🔴":t.priority==="low"?"🟢":"🟡"}</div><div style="font-size:13px;font-weight:600;">${t.text}</div><div style="font-size:10px;color:var(--text3);margin-left:auto;">${t.subject||""}</div></div>`).join(""):`<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px;">✨ 沒有待辦事項</div>`;
+  // Quote
+  const q=state.currentQuote||BUILTIN_QUOTES[Math.floor(Math.random()*BUILTIN_QUOTES.length)];
+  document.getElementById("homeQuote").textContent=`「${q.text}」— ${q.author}`;
+}
+
+// ═══════════════════════════════════════
+// TIMETABLE
+// ═══════════════════════════════════════
+function renderTimetable(){
+  const today=new Date().getDay();// 0=Sun,1=Mon...
+  const table=document.getElementById("ttTable");
+  // Header
+  let html=`<thead><tr><th class="tt-col-period">節次</th>`;
+  TIMETABLE.days.forEach((d,i)=>{
+    const isToday=i===today-1;
+    html+=`<th ${isToday?'class="today-th"':''}>${d}</th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+  // Rows
+  TIMETABLE.periods.forEach((p,ri)=>{
+    html+=`<tr><td style="text-align:center;padding:2px;"><div class="tt-period-no">${p.no}</div><div class="tt-period-time">${p.time.replace("\n","<br>")}</div></td>`;
+    TIMETABLE.days.forEach((d,ci)=>{
+      const raw=TIMETABLE.cells[ri][ci];
+      const [name,teacher]=(raw||"").split("\n");
+      const color=SUBJECT_COLORS[name]||"#ddd";
+      html+=`<td><div class="tt-cell" style="border-left-color:${color};"><div class="tt-subject" style="color:${color.replace("ff","88")};filter:brightness(.6)saturate(1.5);">${name||""}</div><div class="tt-teacher">${teacher||""}</div></div></td>`;
+    });
+    html+=`</tr>`;
+  });
+  // Cram footer row (per-day)
+  if(showCramRow){
+    html+=`<tr><td style="text-align:center;padding:2px;"><div style="font-size:10px;font-weight:800;color:var(--warn);">補習</div></td>`;
+    TIMETABLE.days.forEach((d,ci)=>{
+      const c=CRAM[ci];
+      if(c){
+        html+=`<td style="padding:2px;"><div class="cram-day-cell has-cram"><div class="cram-day-emoji">${c.emoji}</div><div class="cram-day-name">${c.name}</div></div></td>`;
+      }else{
+        html+=`<td style="padding:2px;"><div class="cram-day-cell no-cram"><div style="font-size:11px;opacity:.3;">—</div></div></td>`;
+      }
+    });
+    html+=`</tr>`;
+  }
+  html+=`</tbody>`;
+  table.innerHTML=html;
+  // Legend
+  const legend=document.getElementById("legend");
+  legend.innerHTML=Object.entries(SUBJECT_COLORS).map(([s,c])=>`<span class="chip" style="background:${c}22;color:${c.replace("ff","cc")};">${s}</span>`).join("");
+}
+function toggleCramRow(){
+  showCramRow=!showCramRow;
+  document.getElementById("toggleCram").classList.toggle("active",showCramRow);
+  renderTimetable();
+}
+
+// ═══════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════
+function renderCalendar(){
+  const {year,month,selected,view}=calState;
+  const months=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+  document.getElementById("calTitle").textContent=`${year} ${months[month]}`;
+  if(view==="month")renderMonthView();
+  else if(view==="week")renderWeekView();
+  else renderAgendaView();
+}
+function switchView(v){
+  calState.view=v;
+  ["month","week","agenda"].forEach(x=>{
+    document.getElementById("vbtn-"+x).classList.toggle("active",x===v);
+    const el=document.getElementById("cal-"+x+"-view");
+    if(el)el.style.display=x===v?"block":"none";
+  });
+  renderCalendar();
+}
+function changeMonth(d){calState.month+=d;if(calState.month>11){calState.month=0;calState.year++;}else if(calState.month<0){calState.month=11;calState.year--;}renderCalendar();}
+function jumpToday(){const n=new Date();calState.year=n.getFullYear();calState.month=n.getMonth();calState.selected=todayStr();renderCalendar();}
+
+function renderMonthView(){
+  const {year,month,selected}=calState;
+  const first=new Date(year,month,1);
+  const lastDay=new Date(year,month+1,0).getDate();
+  const startDow=first.getDay();
+  const ts=todayStr();
+  let html="";
+  for(let i=0;i<startDow;i++)html+=`<div></div>`;
+  for(let d=1;d<=lastDay;d++){
+    const ds=`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const evs=state.events.filter(e=>e.date===ds);
+    const dow=new Date(year,month,d).getDay();
+    const cls=["cal-day",ds===ts?"today":"",ds===selected?"selected":"",dow===0?"sun":"",dow===6?"sat":""].filter(Boolean).join(" ");
+    html+=`<div class="${cls}" onclick="selectCalDay('${ds}')"><div class="cal-day-num">${d}</div><div class="cal-dots">${evs.slice(0,3).map(e=>`<div class="dot" style="background:${TYPE_COLORS[e.type]||"#6c5ce7"};"></div>`).join("")}</div></div>`;
+  }
+  document.getElementById("calCells").innerHTML=html;
+  renderSelectedDay();
+}
+
+function selectCalDay(ds){calState.selected=ds;renderCalendar();}
+function renderSelectedDay(){
+  const ds=calState.selected;
+  if(!ds){document.getElementById("selDateLabel").textContent="點選日期";document.getElementById("selEvents").innerHTML="";return;}
+  const d=new Date(ds+"T00:00");
+  const days=["週日","週一","週二","週三","週四","週五","週六"];
+  document.getElementById("selDateLabel").textContent=`${ds} ${days[d.getDay()]}`;
+  const evs=state.events.filter(e=>e.date===ds);
+  const selEvEl=document.getElementById("selEvents");
+  selEvEl.innerHTML=evs.length?evs.map(e=>`<div class="agenda-event" style="border-left-color:${e.color||TYPE_COLORS[e.type]||"#6c5ce7"};" onclick="showEventDetail('${e.id}')">
+    <div class="agenda-time">${e.allDay===false&&e.startTime?e.startTime:"整天"}</div>
+    <div><div class="agenda-title">${e.title}</div>${e.location?`<div class="agenda-loc">📍 ${e.location} <button class="map-nav-btn" onclick="event.stopPropagation();openMapNav('${e.location}')">🗺 導航</button></div>`:""}
+    </div></div>`).join(""):`<div style="color:var(--text3);font-size:13px;text-align:center;padding:12px;">這天沒有行程</div>`;
+}
+
+function renderWeekView(){
+  const today=new Date();
+  const startOfWeek=new Date(today);
+  startOfWeek.setDate(today.getDate()-today.getDay());
+  const days=["日","一","二","三","四","五","六"];
+  let headerHtml=`<div style="background:#f0eeff;padding:8px;font-size:11px;font-weight:800;color:var(--text3);text-align:center;">時間</div>`;
+  const weekDates=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(startOfWeek);d.setDate(startOfWeek.getDate()+i);
+    const ds=d.toISOString().split("T")[0];weekDates.push(ds);
+    const isToday=ds===todayStr();
+    headerHtml+=`<div style="background:${isToday?"var(--primary)":"#f0eeff"};color:${isToday?"#fff":"var(--text2)"};padding:8px 2px;font-size:11px;font-weight:800;text-align:center;">${days[i]}<br>${d.getDate()}</div>`;
+  }
+  document.getElementById("weekHeader").innerHTML=headerHtml;
+  let bodyHtml="";
+  for(let h=8;h<22;h++){
+    bodyHtml+=`<div style="display:grid;grid-template-columns:44px repeat(7,1fr);border-bottom:1px solid #f0eeff;min-height:48px;">
+      <div style="padding:4px;font-size:10px;color:var(--text3);font-weight:700;text-align:center;">${h}:00</div>`;
+    weekDates.forEach(ds=>{
+      const evs=state.events.filter(e=>e.date===ds&&e.startTime&&parseInt(e.startTime)===h);
+      bodyHtml+=`<div style="border-left:1px solid #f0eeff;padding:2px;position:relative;">
+        ${evs.map(e=>`<div style="background:${e.color||TYPE_COLORS[e.type]||"#6c5ce7"}22;border-left:3px solid ${e.color||TYPE_COLORS[e.type]||"#6c5ce7"};border-radius:6px;padding:3px 5px;font-size:10px;font-weight:700;cursor:pointer;margin-bottom:2px;" onclick="showEventDetail('${e.id}')">${e.title}</div>`).join("")}
+      </div>`;
+    });
+    bodyHtml+=`</div>`;
+  }
+  document.getElementById("weekBody").innerHTML=bodyHtml;
+}
+
+function renderAgendaView(){
+  const ts=todayStr();
+  const upcoming=state.events.filter(e=>e.date>=ts).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,30);
+  if(!upcoming.length){document.getElementById("agendaList").innerHTML=`<div style="text-align:center;padding:30px;color:var(--text3);">📭 沒有未來行程</div>`;return;}
+  let html="";let lastDate="";
+  upcoming.forEach(e=>{
+    if(e.date!==lastDate){
+      const d=new Date(e.date+"T00:00");
+      const days=["週日","週一","週二","週三","週四","週五","週六"];
+      html+=`<div style="font-size:12px;font-weight:800;color:var(--text3);padding:12px 4px 6px;">${e.date} ${days[d.getDay()]}</div>`;
+      lastDate=e.date;
+    }
+    html+=`<div class="agenda-event" style="border-left-color:${e.color||TYPE_COLORS[e.type]||"#6c5ce7"};" onclick="showEventDetail('${e.id}')">
+      <div class="agenda-time">${e.allDay===false&&e.startTime?e.startTime:"整天"}</div>
+      <div style="flex:1;"><div class="agenda-title">${e.title}</div>${e.location?`<div class="agenda-loc">📍 ${e.location} <button class="map-nav-btn" onclick="event.stopPropagation();openMapNav('${e.location}')">🗺 導航</button></div>`:""}</div>
+    </div>`;
+  });
+  document.getElementById("agendaList").innerHTML=html;
+}
+
+function showEventDetail(id){
+  const e=state.events.find(x=>x.id===id);if(!e)return;
+  document.getElementById("eventDetailModal").editingId=id;
+  const diffDays=Math.ceil((new Date(e.date)-new Date(todayStr()))/86400000);
+  document.getElementById("eventDetailContent").innerHTML=`
+    <div class="modal-title">${e.title}</div>
+    <div class="event-detail-row"><div class="event-detail-icon">📅</div><div>${e.date}${diffDays===0?" (今天)":diffDays===1?" (明天)":` (${diffDays}天後)`}</div></div>
+    ${e.startTime?`<div class="event-detail-row"><div class="event-detail-icon">⏰</div><div>${e.startTime}${e.endTime?" – "+e.endTime:""}</div></div>`:""}
+    ${e.location?`<div class="event-detail-row"><div class="event-detail-icon">📍</div><div>${e.location} <button class="map-nav-btn" onclick="openMapNav('${e.location}')">🗺 地圖導航</button></div></div>`:""}
+    ${e.description?`<div class="event-detail-row"><div class="event-detail-icon">📝</div><div>${e.description}</div></div>`:""}
+    <div class="event-detail-row"><div class="event-detail-icon">🏷</div><div>${e.type||"個人"}</div></div>`;
+  document.getElementById("editEventBtn").onclick=()=>{closeModal("eventDetailModal");editEvent(id);};
+  openModal("addEventModal",true);
+  openModal("eventDetailModal");
+}
+
+function openMapNav(location){
+  if(!location)return;
+  const url=`https://maps.google.com/?q=${encodeURIComponent(location)}`;
+  window.open(url,"_blank");
+}
+function openMapSearch(){
+  const loc=document.getElementById("evLocation").value.trim();
+  if(loc)openMapNav(loc);else toast("⚠️ 請先輸入地點");
+}
+
+// Event modal
+function openAddEventModal(date){
+  editingEventId=null;
+  document.getElementById("addEventModalTitle").textContent="📅 新增行程";
+  document.getElementById("evTitle").value="";
+  document.getElementById("evDate").value=date||calState.selected||todayStr();
+  document.getElementById("evAllDay").checked=true;
+  document.getElementById("evTimeRow").style.display="none";
+  document.getElementById("evLocation").value="";
+  document.getElementById("evDesc").value="";
+  document.getElementById("evRecurrence").value="none";
+  document.getElementById("evReminder").value="15";
+  document.getElementById("evImportant").checked=false;
+  document.getElementById("evDeleteBtn").style.display="none";
+  document.querySelectorAll("#evTypeChips .chip").forEach(c=>c.classList.remove("active"));
+  document.querySelector("#evTypeChips .chip[data-type='personal']").classList.add("active");
+  selectedEventType="personal";selectedEvColor="";
+  document.querySelectorAll("#evColorPicker .color-dot-pick").forEach(c=>c.classList.remove("selected"));
+  document.querySelector("#evColorPicker .color-dot-pick[data-color='']").classList.add("selected");
+  openModal("addEventModal");
+}
+function editEvent(id){
+  const e=state.events.find(x=>x.id===id);if(!e||e.fixed){toast("⚠️ 內建行程無法編輯");return;}
+  editingEventId=id;
+  document.getElementById("addEventModalTitle").textContent="✏️ 編輯行程";
+  document.getElementById("evTitle").value=e.title;
+  document.getElementById("evDate").value=e.date;
+  document.getElementById("evAllDay").checked=e.allDay!==false;
+  toggleAllDay();
+  if(e.startTime)document.getElementById("evStartTime").value=e.startTime;
+  if(e.endTime)document.getElementById("evEndTime").value=e.endTime;
+  document.getElementById("evLocation").value=e.location||"";
+  document.getElementById("evDesc").value=e.description||"";
+  document.getElementById("evRecurrence").value=e.recurrence||"none";
+  document.getElementById("evReminder").value=e.reminder||"15";
+  document.getElementById("evImportant").checked=e.important||false;
+  document.getElementById("evDeleteBtn").style.display="block";
+  document.querySelectorAll("#evTypeChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.type===e.type));
+  selectedEventType=e.type;selectedEvColor=e.color||"";
+  document.querySelectorAll("#evColorPicker .color-dot-pick").forEach(c=>c.classList.toggle("selected",c.dataset.color===selectedEvColor));
+  openModal("addEventModal");
+}
+function editEventFromDetail(){closeModal("eventDetailModal");const id=document.getElementById("eventDetailModal").editingId;if(id)editEvent(id);}
+function deleteEditingEvent(){
+  if(!editingEventId)return;
+  state.events=state.events.filter(e=>e.id!==editingEventId);
+  saveState();renderHome();renderCalendar();closeModal("addEventModal");toast("🗑 已刪除行程");
+}
+function confirmSaveEvent(){
+  const title=document.getElementById("evTitle").value.trim();
+  if(!title){toast("⚠️ 請輸入行程名稱");return;}
+  const ev={
+    id:editingEventId||uid(),title,date:document.getElementById("evDate").value,
+    type:selectedEventType,color:selectedEvColor,
+    allDay:document.getElementById("evAllDay").checked,
+    location:document.getElementById("evLocation").value.trim()||null,
+    description:document.getElementById("evDesc").value.trim()||null,
+    recurrence:document.getElementById("evRecurrence").value,
+    reminder:document.getElementById("evReminder").value,
+    important:document.getElementById("evImportant").checked,
+    startTime:!document.getElementById("evAllDay").checked?document.getElementById("evStartTime").value:null,
+    endTime:!document.getElementById("evAllDay").checked?document.getElementById("evEndTime").value:null,
+  };
+  if(editingEventId){state.events=state.events.map(e=>e.id===editingEventId?{...e,...ev}:e);}
+  else{state.events.push(ev);state.events.sort((a,b)=>a.date.localeCompare(b.date));}
+  saveState();renderHome();renderCalendar();closeModal("addEventModal");
+  toast(editingEventId?"✅ 行程已更新":"✅ 行程已新增");
+}
+function toggleAllDay(){const aD=document.getElementById("evAllDay").checked;document.getElementById("evTimeRow").style.display=aD?"none":"block";}
+function selectEventType(el){document.querySelectorAll("#evTypeChips .chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");selectedEventType=el.dataset.type;}
+function selectEvColor(el,color){document.querySelectorAll("#evColorPicker .color-dot-pick").forEach(c=>c.classList.remove("selected"));el.classList.add("selected");selectedEvColor=color;}
+
+// AI add event
+async function aiAddEvent(){
+  const input=document.getElementById("calAiInput");const text=input.value.trim();
+  if(!text){toast("⚠️ 請輸入行程描述");return;}
+  if(!getApiKey()){toast("⚠️ 請先設定 API Key");return;}
+  input.disabled=true;
+  try{
+    const ts=todayStr();
+    const reply=await aiCall([{role:"user",content:`今天是${ts}，幫我解析：「${text}」\n輸出純 JSON（不要 markdown）：{"title":"...","date":"YYYY-MM-DD","type":"personal|exam|school|holiday|important","startTime":"HH:MM 或 null","location":"...或 null","description":"...或 null","important":true/false}`}],200);
+    const clean=reply.replace(/```json|```/g,"").trim();
+    const ev=JSON.parse(clean);
+    ev.id=uid();ev.allDay=!ev.startTime;
+    state.events.push(ev);state.events.sort((a,b)=>a.date.localeCompare(b.date));
+    saveState();renderCalendar();renderHome();
+    input.value="";toast("✅ AI 已新增行程："+ev.title);
+  }catch(e){toast("❌ AI 解析失敗，請手動新增");}
+  input.disabled=false;
+}
+
+// ═══════════════════════════════════════
+// STUDY / POMODORO / TODOS
+// ═══════════════════════════════════════
+function setPomoDuration(min,el){
+  pomState.duration=min;
+  if(!pomState.active){pomState.time=min*60;updatePomDisplay();}
+  document.querySelectorAll("[id^='pomoDuration']").forEach(b=>b.classList.remove("active",["background","color"].join(",")));
+  el.classList.add("active");el.style.background="var(--primary)";el.style.color="#fff";
+}
+
+function pomodoroToggle(){
+  if(pomState.active){clearInterval(pomState.timer);pomState.active=false;document.getElementById("pomoBtn").textContent="▶ 繼續";}
+  else{
+    pomState.active=true;document.getElementById("pomoBtn").textContent="⏸ 暫停";
+    document.getElementById("pomoLabel").textContent=pomState.isBreak?"休息中":"專注中";
+    pomState.timer=setInterval(()=>{
+      pomState.time--;updatePomDisplay();
+      if(pomState.time<=0){
+        clearInterval(pomState.timer);pomState.active=false;
+        if(!pomState.isBreak){state.pomCount++;xpState.totalPomo++;addXp(20,"番茄鐘完成！");if(xpState.totalPomo===1)checkAchievement("pomo1");if(xpState.totalPomo===5)checkAchievement("pomo5");if(xpState.streak>=3)checkAchievement("streak3");if(xpState.streak>=7)checkAchievement("streak7");triggerConfetti();saveState();document.getElementById("pomCount").textContent=state.pomCount;pomState.isBreak=true;pomState.time=5*60;toast("🍅 完成！休息5分鐘");}
+        else{pomState.isBreak=false;pomState.time=pomState.duration*60;toast("☕ 休息完畢！繼續加油");}
+        document.getElementById("pomoBtn").textContent="▶ 開始";updatePomDisplay();
+      }
+    },1000);
+  }
+}
+function pomodoroReset(){clearInterval(pomState.timer);pomState={active:false,time:pomState.duration*60,isBreak:false,timer:null,duration:pomState.duration};document.getElementById("pomoBtn").textContent="▶ 開始";document.getElementById("pomoLabel").textContent="尚未開始";updatePomDisplay();}
+function updatePomDisplay(){
+  const m=Math.floor(pomState.time/60),s=pomState.time%60;
+  document.getElementById("pomoTime").textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  const total=pomState.isBreak?5*60:pomState.duration*60;
+  document.getElementById("pomoCircle").style.strokeDashoffset=408.4*(1-pomState.time/total);
+  document.getElementById("pomoHeader").textContent=pomState.isBreak?"☕ 番茄鐘 — 休息中":"🍅 番茄鐘 — 專注中";
+}
+function selectTodoSubject(el){document.querySelectorAll("#todoSubjectChips .chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");currentTodoSubject=el.dataset.subj;}
+function selectPriority(p,el){document.querySelectorAll("[id^='pri-']").forEach(c=>c.classList.remove("active"));el.classList.add("active");currentPriority=p;}
+function addTodoItem(){
+  const input=document.getElementById("todoInput");const text=input.value.trim();if(!text)return;
+  state.todos.unshift({id:uid(),text,subject:currentTodoSubject,priority:currentPriority,done:false,createdAt:Date.now()});
+  saveState();input.value="";renderTodos();renderHome();
+}
+function toggleTodo(id){
+  const t=state.todos.find(x=>x.id===id);
+  if(!t)return;
+  const wasUndone=!t.done;
+  t.done=!t.done;
+  if(wasUndone){
+    xpState.todayDone++;
+    addXp(10,"待辦完成");
+    // Check achievements
+    const doneCount=state.todos.filter(x=>x.done).length;
+    if(doneCount===1)checkAchievement("todo1");
+    if(doneCount===5)checkAchievement("todo5");
+    if(doneCount===10)checkAchievement("todo10");
+  }
+  saveState();renderTodos();renderHome();
+}
+function deleteTodo(id){state.todos=state.todos.filter(x=>x.id!==id);saveState();renderTodos();}
+function filterTodos(f,el){todoFilter=f;document.querySelectorAll("[id^='filter-']").forEach(c=>c.classList.remove("active"));el.classList.add("active");renderTodos();}
+function renderTodos(){
+  document.getElementById("pomCount").textContent=state.pomCount;
+  let todos=state.todos;
+  if(todoFilter==="pending")todos=todos.filter(t=>!t.done);
+  else if(todoFilter==="done")todos=todos.filter(t=>t.done);
+  const priColors={high:"#e17055",normal:"#fdcb6e",low:"#00b894"};
+  const priEmoji={high:"🔴",normal:"🟡",low:"🟢"};
+  document.getElementById("todoList").innerHTML=todos.length?todos.map(t=>`
+    <div class="todo-item">
+      <div class="todo-check ${t.done?"done":""}" onclick="toggleTodo('${t.id}')">✓</div>
+      <div style="flex:1;"><div class="todo-text ${t.done?"done-text":""}">${t.text}</div>
+        <div style="display:flex;gap:4px;margin-top:3px;"><span class="todo-tag" style="background:${priColors[t.priority||"normal"]}22;color:${priColors[t.priority||"normal"]};">${priEmoji[t.priority||"normal"]} ${t.subject||""}</span></div>
+      </div>
+      <button style="border:none;background:none;cursor:pointer;font-size:18px;color:var(--text3);" onclick="deleteTodo('${t.id}')">×</button>
+    </div>`).join(""):`<div style="color:var(--text3);font-size:13px;padding:8px 0;text-align:center;">✨ 空的，去完成一些事吧！</div>`;
+}
+function toggleStudySubject(el,s){studySubjects.has(s)?studySubjects.delete(s):studySubjects.add(s);el.classList.toggle("active",studySubjects.has(s));}
+async function generateStudyPlan(){
+  const planDiv=document.getElementById("aiStudyPlan");
+  planDiv.style.display="block";planDiv.innerHTML=`<div class="loading-dots" style="color:var(--text3);">AI 生成中</div>`;
+  if(!getApiKey()){planDiv.innerHTML=`⚠️ 請先設定 API Key`;return;}
+  try{
+    const ts=todayStr();
+    const upcoming=state.events.filter(e=>e.date>=ts).slice(0,5).map(e=>`${e.date} ${e.title}`).join("、");
+    const weather=weatherCache?`天氣：${weatherCache.temp}°C ${weatherCache.desc}`:"";
+    const reply=await aiCall([{role:"user",content:`高一學生，今天${ts}。科目：${[...studySubjects].join("、")}。近期考試：${upcoming||"無"}。補習：週一化學超修，週三物理超修，週四英文學測，週五數學進度。${weather}。生成今天具體讀書計畫（含時間分配、科目順序、休息建議），用繁體中文，格式活潑實用。`}],800);
+    planDiv.innerHTML=reply.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>");
+  }catch(e){planDiv.innerHTML="⚠️ 生成失敗："+e.message;}
+}
+
+// ═══════════════════════════════════════
+// PORTFOLIO
+// ═══════════════════════════════════════
+let db=null;let pendingFiles=[];
+async function initDB(){
+  return new Promise(res=>{
+    const r=indexedDB.open("brainy_v4",2);
+    r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains("files"))d.createObjectStore("files",{keyPath:"id"});};
+    r.onsuccess=e=>{db=e.target.result;res(db);};
+    r.onerror=()=>res(null);
+  });
+}
+function handlePortfolioUpload(input){
+  const files=Array.from(input.files);if(!files.length)return;
+  pendingFiles=files;
+  document.getElementById("portTitle").value=files[0].name.replace(/\.[^.]+$/,"");
+  // Show preview
+  const preview=document.getElementById("portUploadPreview");
+  if(files[0].type.startsWith("image/")){
+    const url=URL.createObjectURL(files[0]);
+    preview.innerHTML=`<img src="${url}" style="max-height:120px;border-radius:10px;margin-bottom:8px;max-width:100%;">`;
+  }else{
+    preview.innerHTML=`<div style="font-size:32px;text-align:center;margin-bottom:8px;">${files[0].type.includes("pdf")?"📄":"🎥"}</div>`;
+  }
+  openModal("portUploadModal");
+  input.value="";
+}
+async function confirmPortfolioUpload(){
+  if(!pendingFiles.length)return;
+  const file=pendingFiles[0];
+  const title=document.getElementById("portTitle").value.trim()||file.name;
+  const subject=document.getElementById("portSubject").value;
+  const desc=document.getElementById("portDesc").value.trim();
+  const tags=document.getElementById("portTags").value.split(",").map(t=>t.trim()).filter(Boolean);
+  const aiAnalyze=document.getElementById("portAiAnalyze").checked;
+  const buf=await file.arrayBuffer();
+  const item={id:uid(),title,subject,description:desc,tags,fileName:file.name,fileType:file.type,fileSize:file.size,data:buf,createdAt:Date.now(),aiAnalysis:null};
+  if(db){
+    const tx=db.transaction("files","readwrite");
+    tx.objectStore("files").add(item);
+    tx.oncomplete=()=>{};
+  }
+  closeModal("portUploadModal");toast("✅ 素材已儲存！");
+  pendingFiles=[];
+  renderPortfolio();
+  // AI analyze
+  if(aiAnalyze&&getApiKey()&&file.type.startsWith("image/")){
+    try{
+      const b64=await fileToBase64(file);
+      const reply=await aiCall([{role:"user",content:[{type:"image",source:{type:"base64",media_type:file.type,data:b64}},{type:"text",text:"這是學生的學習材料/筆記。請用繁體中文分析：1)主題/科目 2)重點內容（3條）3)建議標籤（3個）。格式：JSON {\"subject\":\"...\",\"points\":[\"...\"],\"tags\":[\"...\"]}"}]}],400);
+      const clean=reply.replace(/```json|```/g,"").trim();
+      const analysis=JSON.parse(clean);
+      toast(`🤖 AI 分析：${analysis.points[0]||"完成"}`);
+    }catch(e){}
+  }
+}
+function fileToBase64(file){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.readAsDataURL(file);});}
+
+async function renderPortfolio(){
+  if(!db){document.getElementById("portfolioEmpty").style.display="block";return;}
+  const tx=db.transaction("files","readonly");
+  const store=tx.objectStore("files");
+  const req=store.getAll();
+  req.onsuccess=()=>{
+    let items=req.result||[];
+    const search=document.getElementById("portSearch")?.value.toLowerCase()||"";
+    if(search)items=items.filter(i=>i.title.toLowerCase().includes(search)||i.subject?.toLowerCase().includes(search)||(i.tags||[]).some(t=>t.toLowerCase().includes(search)));
+    if(portSubjectFilter!=="all")items=items.filter(i=>i.subject===portSubjectFilter);
+    items.sort((a,b)=>b.createdAt-a.createdAt);
+    document.getElementById("portStatTotal").textContent=req.result.length;
+    document.getElementById("portStatImg").textContent=req.result.filter(i=>i.fileType?.startsWith("image/")).length;
+    document.getElementById("portStatPdf").textContent=req.result.filter(i=>i.fileType?.includes("pdf")).length;
+    document.getElementById("portStatVid").textContent=req.result.filter(i=>i.fileType?.startsWith("video/")).length;
+    const grid=document.getElementById("portfolioGrid");
+    const empty=document.getElementById("portfolioEmpty");
+    if(!items.length){grid.innerHTML="";empty.style.display="block";return;}
+    empty.style.display="none";
+    grid.innerHTML=items.map(item=>{
+      const icon=item.fileType?.startsWith("image/")?"🖼":item.fileType?.includes("pdf")?"📄":"🎥";
+      const thumb=item.fileType?.startsWith("image/")?`<img class="portfolio-thumb-img" src="${URL.createObjectURL(new Blob([item.data],{type:item.fileType}))}" alt="">`:`<div class="portfolio-thumb-icon" style="background:${item.fileType?.includes("pdf")?"#fff0e0":"#e0f0ff"}">${icon}</div>`;
+      return `<div class="portfolio-item" onclick="showPortfolioDetail('${item.id}')">
+        ${thumb}<div class="portfolio-info">
+          <div class="portfolio-title">${item.title}</div>
+          <div class="portfolio-meta">${item.subject||""}</div>
+          ${(item.tags||[]).map(t=>`<span class="portfolio-tag">${t}</span>`).join("")}
+        </div></div>`;
+    }).join("");
+  };
+}
+
+function showPortfolioDetail(id){
+  if(!db)return;
+  const tx=db.transaction("files","readonly");
+  const req=tx.objectStore("files").get(id);
+  req.onsuccess=()=>{
+    const item=req.result;if(!item)return;
+    const url=URL.createObjectURL(new Blob([item.data],{type:item.fileType}));
+    let preview="";
+    if(item.fileType?.startsWith("image/"))preview=`<img src="${url}" style="width:100%;border-radius:12px;margin-bottom:12px;" alt="">`;
+    else if(item.fileType?.includes("pdf"))preview=`<iframe src="${url}" style="width:100%;height:300px;border-radius:12px;border:none;margin-bottom:12px;"></iframe>`;
+    else if(item.fileType?.startsWith("video/"))preview=`<video src="${url}" controls style="width:100%;border-radius:12px;margin-bottom:12px;"></video>`;
+    document.getElementById("portDetailContent").innerHTML=`
+      ${preview}<div style="font-size:16px;font-weight:800;margin-bottom:6px;">${item.title}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">${item.subject||""} · ${new Date(item.createdAt).toLocaleDateString('zh-TW')}</div>
+      ${item.description?`<div style="font-size:13px;color:var(--text2);margin-bottom:8px;">${item.description}</div>`:""}
+      ${(item.tags||[]).map(t=>`<span class="portfolio-tag">${t}</span>`).join("")}`;
+    document.getElementById("portDeleteBtn").onclick=()=>deletePortfolioItem(id);
+    document.getElementById("portShareBtn").onclick=()=>{const a=document.createElement("a");a.href=url;a.download=item.fileName||item.title;a.click();};
+    openModal("portDetailModal");
+  };
+}
+function deletePortfolioItem(id){
+  if(!db)return;
+  const tx=db.transaction("files","readwrite");
+  tx.objectStore("files").delete(id);
+  tx.oncomplete=()=>{closeModal("portDetailModal");renderPortfolio();toast("🗑 已刪除");};
+}
+function setPortFilter(el,f){portSubjectFilter=f;document.querySelectorAll("#portSubjectFilter .chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");renderPortfolio();}
+
+// ═══════════════════════════════════════
+// NOTES
+// ═══════════════════════════════════════
+function setNoteFilter(el,f){noteSubjectFilter=f;document.querySelectorAll("#noteSubjectFilter .chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");renderNotes();}
+
+function openNoteEditor(id){
+  editingNoteId=id||null;
+  if(id){
+    const note=state.notes.find(n=>n.id===id);
+    if(note){
+      document.getElementById("noteEditorTitle").textContent="✏️ 編輯筆記";
+      document.getElementById("noteTitle").value=note.title;
+      document.getElementById("noteSubject").value=note.subject||"其他";
+      document.getElementById("noteContent").value=note.content;
+      document.getElementById("noteDeleteBtn").style.display="block";
+    }
+  }else{
+    document.getElementById("noteEditorTitle").textContent="📝 新增筆記";
+    document.getElementById("noteTitle").value="";
+    document.getElementById("noteSubject").value="其他";
+    document.getElementById("noteContent").value="";
+    document.getElementById("noteDeleteBtn").style.display="none";
+  }
+  document.getElementById("noteAiResult").style.display="none";
+  openModal("noteEditorModal");
+}
+function saveNote(){
+  const title=document.getElementById("noteTitle").value.trim();
+  const content=document.getElementById("noteContent").value.trim();
+  if(!title){toast("⚠️ 請輸入標題");return;}
+  const note={id:editingNoteId||uid(),title,subject:document.getElementById("noteSubject").value,content,createdAt:editingNoteId?state.notes.find(n=>n.id===editingNoteId)?.createdAt||Date.now():Date.now(),updatedAt:Date.now()};
+  if(editingNoteId)state.notes=state.notes.map(n=>n.id===editingNoteId?note:n);
+  else state.notes.unshift(note);
+  saveState();closeModal("noteEditorModal");renderNotes();toast("✅ 筆記已儲存");
+}
+function deleteCurrentNote(){
+  if(!editingNoteId)return;
+  state.notes=state.notes.filter(n=>n.id!==editingNoteId);
+  saveState();closeModal("noteEditorModal");renderNotes();toast("🗑 已刪除筆記");
+}
+function renderNotes(){
+  const search=document.getElementById("noteSearch")?.value.toLowerCase()||"";
+  let notes=state.notes;
+  if(search)notes=notes.filter(n=>n.title.toLowerCase().includes(search)||n.content.toLowerCase().includes(search));
+  if(noteSubjectFilter!=="all")notes=notes.filter(n=>n.subject===noteSubjectFilter);
+  const list=document.getElementById("notesList");
+  const empty=document.getElementById("notesEmpty");
+  if(!notes.length){list.innerHTML="";empty.style.display="block";return;}
+  empty.style.display="none";
+  list.innerHTML=notes.map(n=>`<div class="note-card" onclick="openNoteEditor('${n.id}')">
+    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;">
+      <div class="note-title" style="flex:1;">${n.title}</div>
+      <span class="note-tag">${n.subject||"其他"}</span>
+    </div>
+    <div class="note-preview">${n.content}</div>
+    <div class="note-meta">${new Date(n.updatedAt||n.createdAt).toLocaleDateString('zh-TW',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+  </div>`).join("");
+}
+async function aiOrganizeNote(){
+  const content=document.getElementById("noteContent").value.trim();
+  if(!content){toast("⚠️ 請先輸入筆記內容");return;}
+  if(!getApiKey()){toast("⚠️ 請先設定 API Key");return;}
+  const resultDiv=document.getElementById("noteAiResult");
+  resultDiv.style.display="block";resultDiv.innerHTML="🤖 AI 整理中…";
+  try{
+    const reply=await aiCall([{role:"user",content:`以下是高中生的學習筆記，請用繁體中文幫我整理成結構清晰的學習筆記，包含：重點摘要、關鍵概念、可能考題。\n\n${content}`}],1000);
+    document.getElementById("noteContent").value=reply;
+    resultDiv.style.display="none";toast("✅ 筆記已整理完成！");
+  }catch(e){resultDiv.innerHTML="⚠️ 整理失敗："+e.message;}
+}
+async function aiSummarizeNote(){
+  const content=document.getElementById("noteContent").value.trim();
+  if(!content){toast("⚠️ 請先輸入筆記內容");return;}
+  if(!getApiKey()){toast("⚠️ 請先設定 API Key");return;}
+  const resultDiv=document.getElementById("noteAiResult");
+  resultDiv.style.display="block";resultDiv.innerHTML="🤖 AI 摘要中…";
+  try{
+    const reply=await aiCall([{role:"user",content:`以下是學習筆記，請用繁體中文給出3-5點核心重點摘要，每點一行，要簡潔有力：\n\n${content}`}],400);
+    resultDiv.innerHTML=`<strong>📌 AI 摘要：</strong><br>${reply.replace(/\n/g,"<br>")}`;
+  }catch(e){resultDiv.innerHTML="⚠️ 失敗："+e.message;}
+}
+
+// ═══════════════════════════════════════
+// VOCAB
+// ═══════════════════════════════════════
+function renderVocab(){
+  const v=state.vocab;
+  document.getElementById("vocabTotal").textContent=v.length;
+  document.getElementById("vocabMastered").textContent=v.filter(w=>w.mastered).length;
+  document.getElementById("vocabToReview").textContent=v.filter(w=>!w.mastered).length;
+  if(v.length){
+    const w=v[currentVocabIndex%v.length];
+    document.getElementById("vocabWord").textContent=w.word.toUpperCase();
+    document.getElementById("vocabPhonetic").textContent=w.phonetic||"";
+    document.getElementById("vocabSubject").textContent=w.subject||"英語文";
+    document.getElementById("vocabDefText").textContent=w.meaning||"尚無定義";
+    document.getElementById("vocabExample").textContent=w.example?`例句：${w.example}`:"";
+    document.getElementById("vocabDef").classList.remove("show");
+  }
+  // List
+  document.getElementById("vocabList").innerHTML=v.slice(0,20).map(w=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0eeff;">
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:800;">${w.word}</div>
+      <div style="font-size:11px;color:var(--text3);">${w.meaning||""}</div>
+    </div>
+    <div style="font-size:18px;">${w.mastered?"✅":"📖"}</div>
+    <button onclick="deleteVocab('${w.id}')" style="border:none;background:none;cursor:pointer;font-size:16px;color:var(--text3);">×</button>
+  </div>`).join("")||`<div style="color:var(--text3);font-size:13px;text-align:center;padding:12px;">新增你的單字</div>`;
+}
+function flipVocabCard(){document.getElementById("vocabDef").classList.toggle("show");}
+function markVocab(status){
+  const v=state.vocab[currentVocabIndex%state.vocab.length];
+  if(v)v.mastered=status==="easy";
+  currentVocabIndex++;saveState();renderVocab();
+}
+function shuffleVocab(){currentVocabIndex=Math.floor(Math.random()*state.vocab.length);document.getElementById("vocabDef").classList.remove("show");renderVocab();}
+function addVocabWord(){
+  const w=document.getElementById("vocabInput").value.trim();
+  if(!w){toast("⚠️ 請輸入單字");return;}
+  const meaning=document.getElementById("vocabMeaningInput").value.trim();
+  state.vocab.push({id:uid(),word:w,meaning,subject:document.getElementById("vocabSubjectSelect").value,mastered:false,createdAt:Date.now()});
+  saveState();document.getElementById("vocabInput").value="";document.getElementById("vocabMeaningInput").value="";renderVocab();toast("✅ 單字已新增");
+}
+function deleteVocab(id){state.vocab=state.vocab.filter(v=>v.id!==id);saveState();renderVocab();}
+function clearVocabList(){if(confirm("確定清除所有自訂單字？（預設單字也會清除）")){state.vocab=[];saveState();renderVocab();}}
+async function aiGenerateVocabMeaning(){
+  const w=document.getElementById("vocabInput").value.trim();
+  if(!w){toast("⚠️ 請先輸入單字");return;}
+  if(!getApiKey()){toast("⚠️ 請先設定 API Key");return;}
+  try{
+    const reply=await aiCall([{role:"user",content:`請提供英文單字「${w}」的：1)中文意思 2)音標 3)例句（英文）。JSON格式：{"meaning":"...","phonetic":"...","example":"..."}`}],200);
+    const d=JSON.parse(reply.replace(/```json|```/g,"").trim());
+    document.getElementById("vocabMeaningInput").value=d.meaning||"";
+    toast(`🤖 AI：${d.meaning}`);
+  }catch(e){toast("AI 查詢失敗");}
+}
+
+// ═══════════════════════════════════════
+// FOCUS FRAME
+// ═══════════════════════════════════════
+function loadFocusFrame(){
+  const url=document.getElementById("focusUrlInput").value.trim();
+  if(!url){toast("⚠️ 請輸入網址");return;}
+  const fullUrl=url.startsWith("http")?url:"https://"+url;
+  loadFocusUrl(fullUrl);
+}
+function loadFocusUrl(url){
+  currentFocusUrl=url;
+  document.getElementById("focusUrlInput").value=url;
+  document.getElementById("focusIframe").src=url;
+  document.getElementById("focusFrameTitle").textContent=url;
+  document.getElementById("focusFrameWrap").style.display="block";
+  document.getElementById("focusOpenNewTab").style.display="block";
+}
+function closeFocusFrame(){document.getElementById("focusFrameWrap").style.display="none";document.getElementById("focusIframe").src="";}
+function openFocusInNewTab(){if(currentFocusUrl)window.open(currentFocusUrl,"_blank");}
+
+// ═══════════════════════════════════════
+// MUSIC
+// ═══════════════════════════════════════
+function openMusicUrl(url){
+  document.querySelector(".music-iframe-wrap iframe").src=url;toast("🎵 切換播放清單");}
+
+// ═══════════════════════════════════════
+// SEARCH / AI CHAT
+// ═══════════════════════════════════════
+let chatHistory=[];
+function onSearchInput(q){
+  if(!q.trim()){document.getElementById("searchResults").style.display="none";return;}
+  const results=[];
+  const ql=q.toLowerCase();
+  state.events.filter(e=>e.title.toLowerCase().includes(ql)).slice(0,3).forEach(e=>results.push({icon:"📅",title:e.title,sub:e.date,badge:"行程"}));
+  state.todos.filter(t=>t.text.toLowerCase().includes(ql)).slice(0,3).forEach(t=>results.push({icon:"✅",title:t.text,sub:t.subject,badge:"待辦"}));
+  state.notes.filter(n=>n.title.toLowerCase().includes(ql)||n.content.toLowerCase().includes(ql)).slice(0,3).forEach(n=>results.push({icon:"📝",title:n.title,sub:n.subject,badge:"筆記"}));
+  state.vocab.filter(v=>v.word.toLowerCase().includes(ql)||v.meaning?.includes(q)).slice(0,3).forEach(v=>results.push({icon:"🔤",title:v.word,sub:v.meaning,badge:"單字"}));
+  const resultsEl=document.getElementById("searchResults");
+  if(!results.length){resultsEl.style.display="none";return;}
+  resultsEl.style.display="block";
+  const highlight=t=>t.replace(new RegExp(`(${q})`, "gi"),"<mark>$1</mark>");
+  resultsEl.innerHTML=`<div class="search-section-title">搜尋結果</div>${results.map(r=>`<div class="search-result-item"><div class="search-result-icon">${r.icon}</div><div><div class="search-result-title">${highlight(r.title)}</div><div class="search-result-sub">${r.sub||""}</div></div><div class="search-result-badge">${r.badge}</div></div>`).join("")}`;
+}
+async function askFromSearch(){
+  const q=document.getElementById("bigSearch").value.trim();if(!q)return;
+  document.getElementById("bigSearch").value="";document.getElementById("searchResults").style.display="none";
+  await sendToAI(q);
+}
+function quickAsk(q){sendToAI(q);}
+function clearChat(){chatHistory=[];document.getElementById("chatArea").innerHTML=`<div class="msg"><div class="msg-ai">👋 嗨！有什麼可以幫你？</div></div>`;}
+async function sendTextToAI(){
+  const input=document.getElementById("aiTextInput");const q=input.value.trim();if(!q)return;
+  input.value="";await sendToAI(q);
+}
+async function sendToAI(q){
+  if(!getApiKey()){document.getElementById("aiKeyWarning").style.display="block";toast("⚠️ 請先設定 API Key");return;}
+  const chatArea=document.getElementById("chatArea");
+  chatArea.innerHTML+=`<div class="msg" style="text-align:right;"><div class="msg-user">${q}</div></div>`;
+  chatArea.scrollTop=chatArea.scrollHeight;
+  const thinking=document.createElement("div");thinking.className="msg";thinking.innerHTML=`<div class="msg-ai loading-dots">AI 思考中</div>`;chatArea.appendChild(thinking);chatArea.scrollTop=chatArea.scrollHeight;
+  chatHistory.push({role:"user",content:q});
+  try{
+    const ts=todayStr();
+    const upcoming=state.events.filter(e=>e.date>=ts).slice(0,8).map(e=>`${e.date} ${e.title}`).join("；");
+    const todos=state.todos.filter(t=>!t.done).slice(0,5).map(t=>t.text).join("；");
+    const weather=weatherCache?`\n現在天氣：台南 ${weatherCache.temp}°C ${weatherCache.desc}`:"";
+    const system=`你是台南二中118雙語實驗班學生的 AI 助理，用繁體中文回應，親切簡潔。今天${ts}，星期${["日","一","二","三","四","五","六"][new Date().getDay()]}。近期行程：${upcoming||"無"}。待辦：${todos||"無"}。${weather}`;
+    const messages=[{role:"user",content:system+"。請根據以上資訊回答："},{role:"assistant",content:"好的，我了解了。"},  ...chatHistory.slice(-8)];
+    const reply=await aiCall(messages,600);
+    chatHistory.push({role:"assistant",content:reply});
+    thinking.innerHTML=`<div class="msg-ai">${reply.replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")}</div>`;
+  }catch(e){thinking.innerHTML=`<div class="msg-ai" style="color:var(--warn);">⚠️ ${e.message}</div>`;}
+  chatArea.scrollTop=chatArea.scrollHeight;
+}
+function startVoice(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){toast("⚠️ 此瀏覽器不支援語音");return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const rec=new SR();rec.lang="zh-TW";rec.continuous=false;rec.interimResults=false;
+  document.getElementById("voiceIndicator").style.display="block";
+  rec.onresult=e=>{
+    const t=e.results[0][0].transcript;
+    document.getElementById("voiceIndicator").style.display="none";
+    sendToAI(t);
+  };
+  rec.onerror=()=>{document.getElementById("voiceIndicator").style.display="none";toast("⚠️ 語音辨識失敗");};
+  rec.start();
+}
+
+// ═══════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════
+function requestNotif(){
+  if(!("Notification" in window)){toast("⚠️ 此瀏覽器不支援通知");return;}
+  Notification.requestPermission().then(p=>{
+    if(p==="granted"){toast("🔔 通知已開啟！");scheduleEventReminders();}
+    else toast("❌ 通知權限被拒絕");
+  });
+}
+function scheduleEventReminders(){
+  const ts=todayStr();
+  const upcoming=state.events.filter(e=>e.date===ts||e.date===addDays(ts,1));
+  if(Notification.permission==="granted"){
+    upcoming.forEach(e=>{
+      new Notification("🧠 腦力基地提醒",{body:`${e.date} ${e.title}`,icon:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"});
+    });
+  }
+}
+function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split("T")[0];}
+
+// ═══════════════════════════════════════
+// QUOTE
+// ═══════════════════════════════════════
+async function fetchQuote(){
+  const q=BUILTIN_QUOTES[Math.floor(Math.random()*BUILTIN_QUOTES.length)];
+  state.currentQuote=q;document.getElementById("homeQuote").textContent=`「${q.text}」— ${q.author}`;
+  if(!getApiKey())return;
+  try{
+    const reply=await aiCall([{role:"user",content:"用繁體中文給一句激勵高中生的名言，格式：「名言」— 作者，只輸出這一句話。"}],100);
+    const match=reply.match(/「(.+?)」[—–-]\s*(.+)/);
+    if(match){state.currentQuote={text:match[1],author:match[2]};document.getElementById("homeQuote").textContent=reply.trim();}
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════
+// DATA MANAGEMENT
+// ═══════════════════════════════════════
+function exportData(){
+  const d={events:state.events.filter(e=>!e.fixed),todos:state.todos,savedQuotes:state.savedQuotes,notes:state.notes,vocab:state.vocab,exportedAt:new Date().toISOString()};
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:"application/json"}));a.download=`腦力基地_${todayStr()}.json`;a.click();
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.events){state.events=[...SCHOOL_EVENTS,...d.events.filter(ev=>!ev.fixed)];state.events.sort((a,b)=>a.date.localeCompare(b.date));}
+      if(d.todos)state.todos=d.todos;if(d.notes)state.notes=d.notes;if(d.vocab&&d.vocab.length)state.vocab=d.vocab;
+      saveLocalState();renderHome();renderCalendar();renderTodos();renderNotes();renderVocab();
+      toast("✅ 資料已匯入！");
+    }catch(e){toast("❌ 匯入失敗，格式有誤");}
+  };
+  r.readAsText(file);input.value="";
+}
+function clearAllData(){
+  if(!confirm("確定清除所有本地資料？（此操作無法復原）"))return;
+  localStorage.removeItem("brainy_v4_state");localStorage.removeItem("brainy_v3_state");
+  location.reload();
+}
+
+// ═══════════════════════════════════════
+// SETUP WIZARD
+// ═══════════════════════════════════════
+function showWizard(){document.getElementById("setupWizard").style.display="flex";}
+function nextStep(n){
+  document.querySelectorAll(".wizard-step").forEach(s=>s.classList.remove("active"));
+  document.getElementById("step"+n).classList.add("active");
+  document.querySelectorAll(".step-dot").forEach((d,i)=>{d.className="step-dot"+(i+1===n?" active":i+1<n?" done":"");});
+}
+function saveApiKeyAndNext(){
+  const k=document.getElementById("wizApiKey").value.trim();
+  if(k&&k.startsWith("AIza")){localStorage.setItem("brainy_api_key",k);localStorage.removeItem("brainy_gemini_model");localStorage.removeItem("brainy_gemini_model_ts");document.getElementById("settingsApiKey").value=k;document.getElementById("aiKeyWarning").style.display="none";}
+  nextStep(3);
+}
+function saveFirebaseAndFinish(){
+  const raw=document.getElementById("wizFirebaseConfig").value.trim();
+  if(raw){try{const c=JSON.parse(raw);localStorage.setItem("brainy_firebase_config",JSON.stringify(c));document.getElementById("settingsFirebaseConfig").value=JSON.stringify(c,null,2);initFirebase(c);}catch(e){toast("❌ Firebase config 格式錯誤");return;}}
+  finishSetup();
+}
+function finishSetup(){localStorage.setItem("brainy_v7_setup","done");document.getElementById("setupWizard").style.display="none";toast("🎉 設定完成！開始使用腦力基地 v4");}
+function skipSetup(){finishSetup();}
+
+// ═══════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════
+function openModal(id,silent){document.getElementById(id).classList.add("open");}
+function closeModal(id){document.getElementById(id).classList.remove("open");}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6);}
+function todayStr(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`;}
+let toastTimer=null;
+function toast(msg){
+  const el=document.getElementById("toast");el.textContent=msg;el.style.display="block";
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display="none",3000);
+}
+// ═══════════════════════════════════════
+// FEEL-GOOD v5: XP / STREAK / ACHIEVEMENTS
+// ═══════════════════════════════════════
+let xpState={xp:0,streak:0,lastDate:"",totalPomo:0,todayDone:0};
+const ACHIEVEMENTS=[
+  {id:"first_todo",icon:"✅",name:"第一步最難！",trigger:"todo1"},
+  {id:"todo5",icon:"🔥",name:"完成 5 件待辦",trigger:"todo5"},
+  {id:"todo10",icon:"💪",name:"十件達成！超厲害",trigger:"todo10"},
+  {id:"pomo1",icon:"🍅",name:"第一個番茄鐘",trigger:"pomo1"},
+  {id:"pomo5",icon:"🍕",name:"番茄鐘大師 x5",trigger:"pomo5"},
+  {id:"streak3",icon:"🔥",name:"連續 3 天打卡",trigger:"streak3"},
+  {id:"streak7",icon:"🌟",name:"一週學霸！連續 7 天",trigger:"streak7"},
+];
+let unlockedAchievements=new Set();
+
+function loadXpState(){
+  try{
+    const s=JSON.parse(localStorage.getItem("brainy_xp")||"{}");
+    xpState={...xpState,...s};
+    const ua=JSON.parse(localStorage.getItem("brainy_achievements")||"[]");
+    unlockedAchievements=new Set(ua);
+    // Check streak
+    const today=todayStr();
+    if(xpState.lastDate!==today){
+      const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+      const yStr=yesterday.toISOString().split("T")[0];
+      if(xpState.lastDate===yStr){xpState.streak++;}
+      else if(xpState.lastDate!==today){xpState.streak=1;}
+      xpState.lastDate=today;
+      xpState.todayDone=0;
+      xpState.xp=Math.max(0,xpState.xp-5); // small decay
+    }
+    saveXpState();
+  }catch(e){}
+}
+
+function saveXpState(){
+  localStorage.setItem("brainy_xp",JSON.stringify(xpState));
+  localStorage.setItem("brainy_achievements",JSON.stringify([...unlockedAchievements]));
+  updateXpUI();
+}
+
+function addXp(amount,reason){
+  xpState.xp=Math.min(100,xpState.xp+amount);
+  saveXpState();
+  if(reason) setTimeout(()=>toast("⚡ +"+amount+" XP — "+reason),100);
+}
+
+function updateXpUI(){
+  const xpEl=document.getElementById("xpCurrent");
+  const xpBar=document.getElementById("xpBar");
+  const streakEl=document.getElementById("streakDays");
+  const doneEl=document.getElementById("todayDone");
+  const pomoEl=document.getElementById("totalPomo");
+  if(xpEl)xpEl.textContent=xpState.xp;
+  if(xpBar)xpBar.style.width=xpState.xp+"%";
+  if(streakEl)streakEl.textContent=xpState.streak;
+  if(doneEl)doneEl.textContent=xpState.todayDone;
+  if(pomoEl)pomoEl.textContent=xpState.totalPomo;
+}
+
+function checkAchievement(trigger){
+  const a=ACHIEVEMENTS.find(x=>x.trigger===trigger);
+  if(a&&!unlockedAchievements.has(a.id)){
+    unlockedAchievements.add(a.id);
+    saveXpState();
+    showAchievement(a);
+    triggerConfetti();
+  }
+}
+
+function showAchievement(a){
+  const popup=document.getElementById("achievementPopup");
+  const icon=document.getElementById("achieveIcon");
+  const name=document.getElementById("achieveName");
+  if(!popup)return;
+  icon.textContent=a.icon;
+  name.textContent=a.name;
+  popup.style.display="block";
+  popup.classList.remove("show");
+  void popup.offsetWidth;
+  popup.classList.add("show");
+  setTimeout(()=>{popup.style.display="none";popup.classList.remove("show");},3200);
+}
+
+// ═══════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════
+function triggerConfetti(){
+  const canvas=document.getElementById("confettiCanvas");
+  if(!canvas)return;
+  canvas.style.display="block";
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+  const ctx=canvas.getContext("2d");
+  const particles=[];
+  const colors=["#6c5ce7","#fd79a8","#fdcb6e","#00b894","#74b9ff","#e17055","#a29bfe"];
+  for(let i=0;i<80;i++){
+    particles.push({
+      x:Math.random()*canvas.width,y:Math.random()*-canvas.height*0.5,
+      w:Math.random()*10+4,h:Math.random()*6+3,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      vy:Math.random()*4+2,vx:(Math.random()-0.5)*3,
+      rot:Math.random()*360,vr:(Math.random()-0.5)*8,
+      opacity:1
+    });
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=0.1;
+      if(frame>80)p.opacity-=0.02;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha=Math.max(0,p.opacity);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    frame++;
+    if(frame<150&&particles.some(p=>p.opacity>0))requestAnimationFrame(draw);
+    else{ctx.clearRect(0,0,canvas.width,canvas.height);canvas.style.display="none";}
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════
+// BREATH WIDGET
+// ═══════════════════════════════════════
+let breathActive=false,breathPhase="idle",breathTimer=null;
+function toggleBreath(){
+  if(breathActive){
+    breathActive=false;
+    clearTimeout(breathTimer);
+    const circle=document.getElementById("breathCircle");
+    const label=document.getElementById("breathLabel");
+    if(circle)circle.classList.remove("inhale","exhale");
+    if(label)label.textContent="點我開始放鬆呼吸";
+    return;
+  }
+  breathActive=true;
+  runBreath();
+}
+function runBreath(){
+  if(!breathActive)return;
+  const circle=document.getElementById("breathCircle");
+  const label=document.getElementById("breathLabel");
+  if(!circle)return;
+  circle.classList.remove("exhale");
+  circle.classList.add("inhale");
+  if(label)label.textContent="🫁 吸氣… 4 秒";
+  breathTimer=setTimeout(()=>{
+    if(!breathActive)return;
+    circle.classList.remove("inhale");
+    circle.classList.add("exhale");
+    if(label)label.textContent="😮‍💨 吐氣… 4 秒";
+    breathTimer=setTimeout(()=>{
+      runBreath();
+    },4000);
+  },4000);
+}
+
+// ═══════════════════════════════════════
+// QUICK WINS
+// ═══════════════════════════════════════
+const QUICK_WINS=[
+  "先完成一件小事，讓大腦感覺到勝利！",
+  "今天的進度，就是明天的基礎。",
+  "不需要完美，只需要開始。",
+  "每一個番茄鐘都是超越昨日的自己。",
+  "感覺良好，才能做得更好！",
+  "你已經開啟了 App，今天已經贏了！",
+];
+function updateQuickWin(){
+  const el=document.getElementById("quickWinText");
+  if(el)el.textContent=QUICK_WINS[Math.floor(Math.random()*QUICK_WINS.length)];
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+window.addEventListener("DOMContentLoaded",async()=>{
+  loadXpState();
+  updateQuickWin();
+  loadLocalState();
+  await initDB();
+  loadFirebaseConfig();
+  checkApiKey();
+
+  // Load CWA key
+  const ck=getCwaKey();
+  if(ck)document.getElementById("settingsCwaKey").value=ck;
+  if(document.getElementById("cwaKeyInput"))document.getElementById("cwaKeyInput").value=ck;
+
+  renderHome();
+  renderTimetable();
+  renderCalendar();
+  renderTodos();
+  renderNotes();
+  renderVocab();
+  startWeatherAutoRefresh();
+
+  // Start clock
+  updateClock();
+  setInterval(updateClock,1000);
+
+  // Setup wizard
+  const setupDone=localStorage.getItem("brainy_v7_setup")||localStorage.getItem("brainy_v3_setup");
+  if(!setupDone)setTimeout(showWizard,800);
+  else setTimeout(updateSyncUI,500);
+
+  // Fetch initial quote
+  const q=BUILTIN_QUOTES[Math.floor(Math.random()*BUILTIN_QUOTES.length)];
+  state.currentQuote=q;document.getElementById("homeQuote").textContent=`「${q.text}」— ${q.author}`;
+});
+
+// PWA Service Worker
+if("serviceWorker" in navigator){
+  const swCode=`const C="brainy-v4";self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(["/"]).catch(()=>{})));});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)).catch(()=>new Response("")));});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:"application/javascript"}))).catch(()=>{});
+}
+</script>
 </body>
 </html>
