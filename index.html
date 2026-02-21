@@ -2944,6 +2944,14 @@ function updateClock(){
 }
 
 // ═══════════════════════════════════════
+// CLOCK — started independently so it always runs
+// ═══════════════════════════════════════
+document.addEventListener("DOMContentLoaded",function(){
+  updateClock();
+  setInterval(updateClock,1000);
+});
+
+// ═══════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════
 const ALL_PAGES=["home","tt","search","study","portfolio","cal","music","calc","notes","weather","vocab","focus","settings"];
@@ -4948,9 +4956,8 @@ window.addEventListener("DOMContentLoaded",async()=>{
   renderVocab();
   startWeatherAutoRefresh();
 
-  // Start clock
+  // Start clock (also started early, this is a safety call)
   updateClock();
-  setInterval(updateClock,1000);
 
   // Setup wizard
   const setupDone=localStorage.getItem("brainy_v7_setup")||localStorage.getItem("brainy_v3_setup");
